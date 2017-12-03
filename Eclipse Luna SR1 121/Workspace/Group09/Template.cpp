@@ -24,9 +24,9 @@ static Application module01("Template", 2001);
 #define LSM9DS0_XM 0x1D
 
 // Start of Output Register for LSM9DS0
-#define OUT_X_L_G 0x28 	// GYRO read 6 register for total output in x, y and z
-#define OUT_X_L_A 0x28	// ACC has same 6 register since combined
-#define OUT_X_L_M 0x08	// MAG read 6 register for total output in x, y and z
+#define OUT_X_L_G	 			0x28 	// GYRO read 6 register for total output in x, y and z
+#define OUT_X_L_A 				0x28	// ACC has same 6 register since combined
+#define OUT_X_L_M 				0x08	// MAG read 6 register for total output in x, y and z
 #define OUT_TEMP_L_XM			0x05
 
 // MSB for setups
@@ -39,14 +39,16 @@ static Application module01("Template", 2001);
 #define MAG_MAX		2		// 2Gauss
 // Calibration Values
 #define CALI_G		70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
+#define CALI_A		0.061	// Acc  [mG/LSB]				in DataSheet = "LA_So"
 #define CALI_M		0.08	// Mag  [milliGauss/LSB] 		in DataSheet = "M_GN"
+#define CALI_TEMP	8		// Temp [LSB/°C]				from Slides
 
 //***************************************************************************************
 // Useful FUNCTIONS
 //***************************************************************************************
-#define GYRO_DOUBLE(x)			(x) //((double)x*GYRO_MAX/3INT16_MAX)
-#define ACC_DOUBLE(x)			((double)x*ACC_MAX/INT16_MAX)
-#define MAG_DOUBLE(x)			(x) //((double)x*MAG_MAX/INT16_MAX)
+#define GYRO_DOUBLE(x)			(x*CALI_G) //((double)x*GYRO_MAX/3INT16_MAX)
+#define ACC_DOUBLE(x)			(x*CALI_A)
+#define MAG_DOUBLE(x)			(x*CALI_M) //((double)x*MAG_MAX/INT16_MAX)
 //#define GYRO_8to16(low,high)	((((int16_t)high<<8) | low)*CALI_G)
 //Temperature is missing at the moment
 
@@ -146,10 +148,10 @@ public:
 			//PRINTF("Hello Rodos %f",SECONDS_NOW());
 //			suspendCallerUntil(NOW()+1000*MILLISECONDS);
 
-			sprintf(string, "IMU_STATUS %s \n",Teledata.i);
+			//sprintf(string, "IMU_STATUS %s \n",Teledata.i);
 			//BT2UART.write(string, strlen(string));
 			PRINTF(string);
-			//sprintf(string, "%s \n",Teledata.e);
+			sprintf(string, "%s \n",Teledata.i);
 			//BT2UART.write(string, strlen(string));
             suspendCallerUntil(NOW()+500*MILLISECONDS);
 		}
@@ -219,7 +221,9 @@ class SensorIMU: public Thread {
 private:
 
 	int16_t DATA_G[3];
+	int16_t DATA_A[3];
 	int16_t DATA_M[3];
+	int16_t DATA_T[1];
 	SensorData imuData;
 	uint8_t LSM9DS0_WHO_AM_I_G[1] = {0x0F};
 	uint8_t LSM9DS0_CTRL_REG1_G[2] = {0x20, 0x4F};
@@ -350,7 +354,7 @@ public:
 	}
 
 	void run() {
-		uint8_t tempData_G[6], tempData_M[6];
+		uint8_t tempData_G[6], tempData_A[6], tempData_M[6], tempData_T[2];
 		SensorData SData;
 		ImuRegSetup();
 
@@ -370,20 +374,54 @@ public:
 			DATA_G[1] = (((int16_t)tempData_G[3]<<8) | tempData_G[2])*CALI_G;
 			DATA_G[2] = (((int16_t)tempData_G[5]<<8) | tempData_G[4])*CALI_G;
 
-			/*read LSM9DS0 (IMU) Gyro*/
+
+			/*read LSM9DS0 (IMU) Accelerometer*/
+			uint8_t LSM9DS0_OUT_X_L_A[1] = {0xE8}; // first two bits should be 1 for contiguous read
+			CS_XM.setPins(0);
+			IMU.write(LSM9DS0_OUT_X_L_A, 1);
+			IMU.read((uint8_t*)tempData_A,6);			//read LSM9DS0_OUT_X_L_G = pitch-velocity
+			CS_XM.setPins(1);
+			DATA_A[0] = (((int16_t)tempData_A[1]<<8) | tempData_A[0]);
+			DATA_A[1] = (((int16_t)tempData_A[3]<<8) | tempData_A[2]);
+			DATA_A[2] = (((int16_t)tempData_A[5]<<8) | tempData_A[4]);
+
+			for (int i=0;i<3;i++){
+				DATA_A[i]*=CALI_A;
+			}
+
+			/*read LSM9DS0 (IMU) Magnetometer*/
 			CS_XM.setPins(0);
 			uint8_t LSM9DS0_OUT_X_L_M[1] = {0xC9};	//Address but with 11 in the front for read and continuous read
 			IMU.write(LSM9DS0_OUT_X_L_M, 1);
 			IMU.read((uint8_t*)tempData_M,6);			//read LSM9DS0_OUT_X_L_G = pitch-velocity
 			CS_XM.setPins(1);
+			DATA_M[0] = (((int16_t)tempData_M[1]<<8) | tempData_M[0]);
+			DATA_M[1] = (((int16_t)tempData_M[3]<<8) | tempData_M[2]);
+			DATA_M[2] = (((int16_t)tempData_M[5]<<8) | tempData_M[4]);
+			for (int i=0;i<3;i++){
+				DATA_M[i]*=CALI_M;
+			}
+
+			/*read LSM9DS0 (IMU) Temperature */
+			tempData_T[0]=0b00000000;
+			CS_XM.setPins(0);
+			uint8_t LSM9DS0_OUT_TEMP_L_XM[1] = {0b11000101};	//Address but with 11 in the front for read and continuous read
+			IMU.write(LSM9DS0_OUT_TEMP_L_XM, 1);
+			IMU.read((uint8_t*)tempData_T,2);			//read LSM9DS0_OUT_TEMP_L_XM = temperature
+			CS_XM.setPins(1);
+			DATA_T[0] = tempData_T[0];
+			DATA_T[0] = (DATA_T[0] & 0x800) ? (-1 ^ 0xFFF) | DATA_T[0] : DATA_T[0];		//Copy pasted -> why is it exactly like this?!
+			//DATA_T[0]= (((int16_t)tempData_T[1]<<8) | tempData_G[0]);
+			DATA_T[0]/=CALI_TEMP;
 
 
 
 			/*publish*/
 			//sprintf(imuData.e, "%f, %f, %f", GYRO_DOUBLE(TEST(DATA[1],DATA[2])),GYRO_DOUBLE(TEST(DATA[0],DATA[1])),GYRO_DOUBLE(TEST(DATA[5],DATA[6])));
-			//sprintf(imuData.i, "%x ,%x ,%x ,%x ,%x ,%x ,%x ,%x ,%x ,%x ,%x ,%x", GYRO_DOUBLE(DATA[0]),GYRO_DOUBLE(DATA[1]),GYRO_DOUBLE(DATA[2]),GYRO_DOUBLE(DATA[3]),GYRO_DOUBLE(DATA[4]),GYRO_DOUBLE(DATA[5]),GYRO_DOUBLE(DATA[6]),GYRO_DOUBLE(DATA[7]),GYRO_DOUBLE(DATA[8]),GYRO_DOUBLE(DATA[9]),GYRO_DOUBLE(DATA[10]),GYRO_DOUBLE(DATA[11]));
-			//sprintf(imuData.e,"X: %d    Y: %d    Z:%d",MAG_DOUBLE(DATA_M[0]),MAG_DOUBLE(DATA_M[1]),MAG_DOUBLE(DATA_M[2]));
-			sprintf(imuData.i, "X':%d    Y':%d    Z':%d", GYRO_DOUBLE(DATA_G[0]),GYRO_DOUBLE(DATA_G[1]),GYRO_DOUBLE(DATA_G[2]));
+			sprintf(imuData.i, "%d ,%d ,%d", DATA_A[0],DATA_A[1],DATA_A[2]);
+			//sprintf(imuData.e,"X: %d    Y: %d    Z:%d",DATA_M[0],DATA_M[1],DATA_M[2]);
+			//sprintf(imuData.i, "X':%d    Y':%d    Z':%d", DATA_G[0],DATA_G[1],DATA_G[2]);
+			sprintf(imuData.e,"%d",DATA_T[0]);
 			SensorDataTopic.publish(imuData);
 		    suspendCallerUntil(NOW()+200*MILLISECONDS);
 		}
