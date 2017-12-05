@@ -68,8 +68,8 @@ HAL_GPIO BlueButton(GPIO_000);
 
 //Servos, ReactionWheels and ReactionWheels
 HAL_GPIO Servo1(GPIO_073); /* declare HAL_GPIO for GPIO_036 = PC4 (HBRIDGE-A INA pin) */
-HAL_PWM ReactionWheel(PWM_IDX01); /* declare HAL_PWM for PWM_IDX12 = TIM4-CH1 (HBRIDGE-A), please refer to hal_pwm.h for correct PWM mapping*/
-
+HAL_PWM ReactionWheel(PWM_IDX12); /* declare HAL_PWM for PWM_IDX12 = TIM4-CH1 (HBRIDGE-A), please refer to hal_pwm.h for correct PWM mapping*/
+HAL_PWM Servo01(PWM_IDX00);
 
 //HAL_UART BT2UART(BT_UART);
 
@@ -100,14 +100,14 @@ struct SensorData{
 	char i[100];
 	char e[100];
 	//Offsets
-	float offGyroX,offGyroY,offGyroZ;
-	float offAccX,offAccY,offAccZ;
-	float offMagX,offMagY,offMagZ;
+	char offGyroX[12],offGyroY[12],offGyroZ[12];
+	char offAccX[12],offAccY[12],offAccZ[12];
+	char offMagX[12],offMagY[12],offMagZ[12];
 	//Actual values
-	float gyroX,gyroY,gyroZ;
-	float accX,accY,accZ;
-	float magX,magY,magZ;
-
+	char gyroX[12],gyroY[12],gyroZ[12];
+	char accX[12],accY[12],accZ[12];
+	char magX[12],magY[12],magZ[12];
+	char temperature[12];
 };
 
 
@@ -150,7 +150,7 @@ public:
 
 			//sprintf(string, "IMU_STATUS %s \n",Teledata.i);
 			//BT2UART.write(string, strlen(string));
-			PRINTF(string);
+			PRINTF("G: %s , %s , %s \n",Teledata.gyroX, Teledata.gyroY, Teledata.gyroZ);
 			sprintf(string, "%s \n",Teledata.i);
 			//BT2UART.write(string, strlen(string));
             suspendCallerUntil(NOW()+500*MILLISECONDS);
@@ -323,7 +323,7 @@ public:
 		//BT2UART.write(string, strlen(string));
 		suspendCallerUntil(NOW()+100*MILLISECONDS);
 		for(int i = 0; i>=1000;i++){
-//DON'T GET DATA YET PLEASE ADD & GYRO_DOUBLE NOT FINISHED YET
+//DON'T GET DATA YET PLEASE ADD & GYRO_DOUBLE NOT FINISHED YET.
 			//Get Data from Sensor (Gyro)
 
 			//Add Values
@@ -331,9 +331,9 @@ public:
 			valueY+= GYRO_DOUBLE(data[1]);
 			valueZ+= GYRO_DOUBLE(data[2]);
 		}
-		SData.offGyroX =valueX/1000;
-		SData.offGyroY =valueY/1000;
-		SData.offGyroZ =valueZ/1000;
+//		SData.offGyroX =valueX/1000;
+//		SData.offGyroY =valueY/1000;
+//		SData.offGyroZ =valueZ/1000;
 
 
 		//ACCELEROMETER
@@ -370,9 +370,15 @@ public:
 			IMU.write(LSM9DS0_OUT_X_L_G, 1);
 			IMU.read((uint8_t*)tempData_G,6);			//read LSM9DS0_OUT_X_L_G = pitch-velocity
 			CS_G.setPins(1);
-			DATA_G[0] = (((int16_t)tempData_G[1]<<8) | tempData_G[0])*CALI_G;
-			DATA_G[1] = (((int16_t)tempData_G[3]<<8) | tempData_G[2])*CALI_G;
-			DATA_G[2] = (((int16_t)tempData_G[5]<<8) | tempData_G[4])*CALI_G;
+			DATA_G[0] = (((int16_t)tempData_G[1]<<8) | tempData_G[0]);
+			DATA_G[1] = (((int16_t)tempData_G[3]<<8) | tempData_G[2]);
+			DATA_G[2] = (((int16_t)tempData_G[5]<<8) | tempData_G[4]);
+			for (int i=0;i<3;i++){
+				DATA_G[i]*=CALI_G;
+			}
+			sprintf(imuData.gyroX,"%d",DATA_G[0]);
+			sprintf(imuData.gyroY,"%d",DATA_G[1]);
+			sprintf(imuData.gyroZ,"%d",DATA_G[2]);
 
 
 			/*read LSM9DS0 (IMU) Accelerometer*/
@@ -388,6 +394,10 @@ public:
 			for (int i=0;i<3;i++){
 				DATA_A[i]*=CALI_A;
 			}
+			sprintf(imuData.accX,"%d",DATA_A[0]);
+			sprintf(imuData.accY,"%d",DATA_A[1]);
+			sprintf(imuData.accZ,"%d",DATA_A[2]);
+
 
 			/*read LSM9DS0 (IMU) Magnetometer*/
 			CS_XM.setPins(0);
@@ -401,6 +411,10 @@ public:
 			for (int i=0;i<3;i++){
 				DATA_M[i]*=CALI_M;
 			}
+			sprintf(imuData.magX,"%d",DATA_M[0]);
+			sprintf(imuData.magY,"%d",DATA_M[1]);
+			sprintf(imuData.magZ,"%d",DATA_M[2]);
+
 
 			/*read LSM9DS0 (IMU) Temperature */
 			tempData_T[0]=0b00000000;
@@ -412,7 +426,7 @@ public:
 			DATA_T[0] = tempData_T[0];
 			DATA_T[0] = (DATA_T[0] & 0x800) ? (-1 ^ 0xFFF) | DATA_T[0] : DATA_T[0];		//Copy pasted -> why is it exactly like this?!
 			//DATA_T[0]= (((int16_t)tempData_T[1]<<8) | tempData_G[0]);
-			DATA_T[0]/=CALI_TEMP;
+			sprintf(imuData.temperature,"%d",DATA_M[2]);
 
 
 
@@ -431,6 +445,9 @@ public:
 SensorIMU SensorIMU("SensorIMU");
 /***********************************************************************/
 
+HAL_GPIO HBRIDGE_A_INA(GPIO_036); /* declare HAL_GPIO for GPIO_036 = PC4 (HBRIDGE-A INA pin) */
+HAL_GPIO HBRIDGE_A_INB(GPIO_017); /* declare HAL_GPIO for GPIO_017 = PB1 (HBRIDGE-B INA pin) */
+HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
 
 
 class Motors: public Thread {
@@ -453,14 +470,38 @@ public:
 		//IMU_EN.init(true, 1, 1);
 		//IMU.init(1000000);
 		Servo1.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
-		ReactionWheel.init(5000, 1000); /* initialization of the HAL object should be called one time only in the project*/
 
+		HBRIDGE_EN.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+		HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+		HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
+		ReactionWheel.init(5000, 1000); /* initialization of the HAL object should be called one time only in the project*/
+		Servo01.init(5000,1000);
 	}
 
 	void run() {
 		while (1) {
+			HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+			HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
 
-			ReactionWheel.write(250); /* Set the Duty Cycle to 25% */
+			//HBRIDGE_A_INA.write(200);
+			//Servo01.write(750);
+			for (int var = 0; var <= 3; ++var) {
+				Servo01.write(var*50);
+				ReactionWheel.write(var*100);
+				suspendCallerUntil(NOW()+800*MILLISECONDS);
+			}
+			ReactionWheel.write(0);
+			suspendCallerUntil(NOW()+500*MILLISECONDS);
+			HBRIDGE_A_INA.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
+			HBRIDGE_A_INB.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+			for (int var = 0; var <= 3; ++var) {
+				Servo01.write(var*50);
+				ReactionWheel.write(var*100);
+				suspendCallerUntil(NOW()+800*MILLISECONDS);
+			}
+			ReactionWheel.write(0);
+			suspendCallerUntil(NOW()+500*MILLISECONDS);
+			//ReactionWheel.write(250); /* Set the Duty Cycle to 25% */
 
 
 
