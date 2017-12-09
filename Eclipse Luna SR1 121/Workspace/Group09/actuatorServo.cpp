@@ -18,7 +18,7 @@
 //HAL_GPIO HBRIDGE_A_INB(GPIO_017); /* declare HAL_GPIO for GPIO_017 = PB1 (HBRIDGE-B INA pin) */
 //HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
 
-HAL_GPIO Servo1(GPIO_073); /* declare HAL_GPIO for GPIO_036 = PC4 (HBRIDGE-A INA pin) */
+//HAL_GPIO Servo1(GPIO_073); /* declare HAL_GPIO for GPIO_036 = PC4 (HBRIDGE-A INA pin) */
 HAL_PWM Servo01(PWM_IDX00);
 
 ActuatorServo actuatorServo;
@@ -27,7 +27,7 @@ ActuatorServo::ActuatorServo() {
 }
 
 void ActuatorServo::init() {
-	Servo1.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+	//Servo1.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 	Servo01.init(5000,1000);
 }
 
