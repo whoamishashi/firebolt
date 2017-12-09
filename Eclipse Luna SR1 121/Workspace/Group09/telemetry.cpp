@@ -6,7 +6,6 @@
  */
 
 #include "telemetry.h"
-#include "rodos.h"
 #include <stdio.h>
 #include "hal.h"
 #include "math.h"
@@ -47,10 +46,10 @@ void Telemetry::run() {
 
 		//PRINTF("Hello Rodos, the time now is %f \r\n",SECONDS_NOW());
 
-		sprintf(string, "IMU_STATUS %s \n",testData.i);
+		//sprintf(string, "IMU_STATUS %s \n",testData.i);
 
-		//sprintf(string, "IMU_STATUS %s \n",GreenLED.readPins() ? "true" : "false");
-		BT2UART.write(string, strlen(string));
+//		sprintf(string, "IMU_STATUS %s \n",GreenLED.readPins() ? "true" : "false");
+//		BT2UART.write(string, strlen(string));
 
 		//BT2UART.read(string, strlen(string));
 		//GreenLED.setPins(string);
@@ -58,8 +57,8 @@ void Telemetry::run() {
 		//BT2UART.suspendUntilDataReady();
 //		BT2UART.read(buffer, 1);
 //		PRINTF("Hello Rodos, the buffer now is %s \r\n",buffer);
-		PRINTF("G: %s , %s , %s \n",Teledata.gyroX, Teledata.gyroY, Teledata.gyroZ);
-
+		PRINTF("G: %s , %s , %s \n",Teledata.magX, Teledata.magY, Teledata.magZ);
+		PRINTF("Temp: %s", Teledata.temperature);
 
 	}
 }
