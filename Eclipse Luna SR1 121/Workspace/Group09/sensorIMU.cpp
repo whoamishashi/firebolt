@@ -9,7 +9,7 @@
 
 #include "sensorIMU.h"
 
-#include "rodos.h"
+
 #include "globals.h"
 #include <stdio.h>
 #include "hal.h"
