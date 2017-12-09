@@ -27,7 +27,7 @@ void ActuatorRW::init() {
 	HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 	HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
 	ReactionWheel.init(5000, 1000); /* initialization of the HAL object should be called one time only in the project*/
-	ReactionWheel.write(250); /* Set the Duty Cycle to 25% */
+	//ReactionWheel.write(250); /* Set the Duty Cycle to 25% */
 
 }
 
@@ -35,22 +35,20 @@ void ActuatorRW::run() {
 	while (1) {
 		HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 		HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
+		ReactionWheel.write(0);
 
-		//HBRIDGE_A_INA.write(200);
 		for (int var = 0; var <= 3; ++var) {
 			ReactionWheel.write(var*100);
 			suspendCallerUntil(NOW()+800*MILLISECONDS);
 		}
-		ReactionWheel.write(0);
-		suspendCallerUntil(NOW()+500*MILLISECONDS);
 		HBRIDGE_A_INA.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
 		HBRIDGE_A_INB.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+		ReactionWheel.write(0);
+
 		for (int var = 0; var <= 3; ++var) {
 			ReactionWheel.write(var*100);
 			suspendCallerUntil(NOW()+800*MILLISECONDS);
 		}
-		ReactionWheel.write(0);
-		suspendCallerUntil(NOW()+500*MILLISECONDS);
 		//ReactionWheel.write(250); /* Set the Duty Cycle to 25% */
 	}
 }
