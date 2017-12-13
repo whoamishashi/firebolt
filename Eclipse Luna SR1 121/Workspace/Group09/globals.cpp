@@ -8,7 +8,7 @@
 
 #include "globals.h"
 
-HAL_GPIO GreenLED(LED_GREEN);
+//HAL_GPIO GreenLED(LED_GREEN);
 
 
 
@@ -18,7 +18,7 @@ Globals::Globals() {
 }
 
 void Globals::init() {
-	GreenLED.init(true, 1, 0);
+	//GreenLED.init(true, 1, 0);
 
 	//BT2UART.init(921600);
 }
@@ -28,7 +28,7 @@ void Globals::run() {
 	while (1) {
 
         suspendCallerUntil(NOW()+500*MILLISECONDS);
-		GreenLED.setPins(~GreenLED.readPins());
+		//GreenLED.setPins(~GreenLED.readPins());
 
 //		if (BlueButton.readPins()){
 //			BlueLED.setPins(~BlueLED.readPins());
