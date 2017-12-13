@@ -1,8 +1,8 @@
 /*
- * Actuator.cpp
+ * actuatorRW.cpp
  *
  *  Created on: 30.11.2017
- *      Author: I8FL-PC01-G01
+ *      Author: Felix Hessinger
  */
 
 #include <stdio.h>
@@ -33,19 +33,21 @@ void ActuatorRW::init() {
 
 void ActuatorRW::run() {
 	while (1) {
-		HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
-		HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
 		ReactionWheel.write(0);
+		HBRIDGE_A_INB.setPins(0); /* initialization of the HAL object should be called one time only in the project*/
+		HBRIDGE_A_INA.setPins(1); /* initialization of the HAL object should be called one time only in the project*/
+		//ReactionWheel.write(0);
 
-		for (int var = 0; var <= 3; ++var) {
+		for (int var = 0; var < 10; ++var) {
 			ReactionWheel.write(var*100);
 			suspendCallerUntil(NOW()+800*MILLISECONDS);
 		}
-		HBRIDGE_A_INA.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
-		HBRIDGE_A_INB.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 		ReactionWheel.write(0);
+		HBRIDGE_A_INA.setPins(0); /* initialization of the HAL object should be called one time only in the project*/
+		HBRIDGE_A_INB.setPins(1); /* initialization of the HAL object should be called one time only in the project*/
+		//ReactionWheel.write(2);
 
-		for (int var = 0; var <= 3; ++var) {
+		for (int var = 0; var <= 4; (++var)*2) {
 			ReactionWheel.write(var*100);
 			suspendCallerUntil(NOW()+800*MILLISECONDS);
 		}
