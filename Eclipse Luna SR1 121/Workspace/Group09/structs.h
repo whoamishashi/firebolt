@@ -41,13 +41,13 @@ struct SensorData{
 	char i[100];
 	char e[100];
 	//Offsets
-	char offGyroX[12],offGyroY[12],offGyroZ[12];
+	int16_t offGyroX,offGyroY,offGyroZ;
 	char offAccX[12],offAccY[12],offAccZ[12];
 	char offMagX[12],offMagY[12],offMagZ[12];
 	//Actual values
 	char gyroX[12],gyroY[12],gyroZ[12];
 	char accX[12],accY[12],accZ[12];
-	char magX[12],magY[12],magZ[12];
+	int16_t magX,magY,magZ;
 	char temperature[12];
 };
 
