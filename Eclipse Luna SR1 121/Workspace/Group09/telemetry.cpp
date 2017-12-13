@@ -36,10 +36,10 @@ void Telemetry::run() {
 	char string[50];
 
 	while (1) {
-		suspendCallerUntil(NOW()+1000*MILLISECONDS);
+		suspendCallerUntil(NOW()+500*MILLISECONDS);
 
 		SensorData Teledata;
-		SensorDataBuffer.get(Teledata);
+		//SensorDataBuffer.get(Teledata);
 
 		char buffer[50];
 		TestDataBuffer.get(testData);
@@ -57,8 +57,8 @@ void Telemetry::run() {
 		//BT2UART.suspendUntilDataReady();
 //		BT2UART.read(buffer, 1);
 //		PRINTF("Hello Rodos, the buffer now is %s \r\n",buffer);
-		PRINTF("G: %s , %s , %s \n",Teledata.magX, Teledata.magY, Teledata.magZ);
-		PRINTF("Temp: %s", Teledata.temperature);
+//		PRINTF("G: %d , %s , %f \n",Teledata.magX, Teledata.magY, Teledata.magZ);
+//		PRINTF("Temp: %s", Teledata.temperature);
 
 	}
 }
