@@ -11,6 +11,12 @@
 #include "rodos.h"
 #include "topics.h"
 #include "structs.h"
+#include "globals.h"
+#include <stdio.h>
+#include "hal.h"
+#include "math.h"
+#include <string>
+
 
 #define IMU_I2C I2C_IDX2
 
@@ -36,7 +42,7 @@
 #define CALI_G		70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
 #define CALI_A		0.061	// Acc  [mG/LSB]				in DataSheet = "LA_So"
 #define CALI_M		0.08	// Mag  [milliGauss/LSB] 		in DataSheet = "M_GN"
-#define CALI_TEMP	8		// Temp [LSB/°C]				from Slides
+#define CALI_T		8		// Temp [LSB/°C]				from Slides
 
 //***************************************************************************************
 // Useful FUNCTIONS
@@ -54,22 +60,11 @@ private:
 //	uint8_t LSM9DS0_CTRL_REG1_G[2] = { 0x20, 0b01001111 };
 //	uint8_t LSM9DS0_OUT_X_H_G[1] = { 0x29 };
 
-	// Setup for registers as recommended in slide 34 of "FloatSat Rodos(Hals) with stm32f4 & ahrs"
-	uint8_t CTRL_REG1_G[2] = {0x20, 0x4F};
-	uint8_t CTRL_REG4_G[2] = {0x23, 0xB0};
-	uint8_t CTRL_REG1_XM[2] = {0x20, 0x7F};
-	uint8_t CTRL_REG2_XM[2] = {0x21, 0xC0};
-	uint8_t CTRL_REG5_XM[2] = {0x24, 0x94};
-	uint8_t CTRL_REG6_XM[2] = {0x25, 0x00};
-	uint8_t CTRL_REG7_XM[2] = {0x26, 0x80};
 
-	int16_t DATA_G[3];
-	int16_t DATA_A[3];
-	int16_t DATA_M[3];
-	int16_t DATA_T[1];
+
+
 	SensorData imuData;
-	uint8_t LSM9DS0_WHO_AM_I_G[1] = {0x0F};
-	uint8_t LSM9DS0_CTRL_REG1_G[2] = {0x20, 0x4F};
+
 	//uint8_t LSM9DS0_OUT_X_H_G[1] = {0x28};
 
 public:
@@ -79,6 +74,10 @@ public:
 //	int16_t* read2value(HAL_GPIO &PinSelect,uint8_t ReadRegister , int16_t *data , int numberOfBits );
 	void ImuRegSetup();
 	void SensorCalibration();
+	void GyroCalibration();
+	void AccCalibration();
+	void MagCalibration();
+	void readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray, int numberOfBits);
 };
 
 extern SensorIMU sensorIMU;
