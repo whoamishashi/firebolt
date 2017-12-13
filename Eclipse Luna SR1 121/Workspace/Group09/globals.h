@@ -23,10 +23,11 @@
 //#define TEST(x,y) (((x) << 8) | y)
 
 // GPIO pins
-#define LED_GREEN GPIO_060
+//#define LED_GREEN GPIO_060
 #define LED_ORANGE GPIO_061
 #define LED_RED GPIO_062
 #define LED_BLUE GPIO_063
+
 
 namespace RODOS{
 extern HAL_UART uart_stdout;
