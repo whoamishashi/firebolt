@@ -63,7 +63,7 @@ void ActuatorThruster::run() {
 		t2 = atoi(splitted[5].c_str()) == 0 ? 0 : 1;
 		t3 = atoi(splitted[6].c_str()) == 0 ? 0 : 1;
 
-		PRINTF("\n t1, t2, t3 %d %d %d", t1, t2, t3);
+		PRINTF("\nt1:%d, t2:%d, t3:%d", t1, t2, t3);
 
 		Thruster1.setPins(t1);
 		Thruster2.setPins(t2);

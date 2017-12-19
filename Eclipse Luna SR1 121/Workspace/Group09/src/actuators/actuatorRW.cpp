@@ -59,8 +59,7 @@ void ActuatorRW::run() {
 		vector<string> splitted = split(telecommandData.telecommand.c_str(), ';');
 		dir = atoi(splitted[2].c_str()) == 0 ? 0 : 1;
 		m_speed = atoi(splitted[3].c_str());
-		PRINTF("\n dir %d", dir);
-		PRINTF("\n m_speed %d", m_speed);
+		PRINTF("\ndir:%d, m_speed:%d", dir, m_speed);
 
 		//ReactionWheel.write(200);
 		if (dir == 0) {
