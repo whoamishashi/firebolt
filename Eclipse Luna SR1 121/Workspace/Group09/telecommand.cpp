@@ -7,37 +7,40 @@
 
 #include "telecommand.h"
 
+using std::string;
+
 Telecommand telecommand;
 
 Telecommand::Telecommand() {
 }
 
-int Telecommand::decodeCommand(DpCommand &comPack) {
-	if (comPack.sync != SYNC_COMM)
-		return -1;
-
-	if (Murmur::mm_hash_32((uint8_t*) &comPack,
-			sizeof(comPack) - sizeof(comPack.check)) != comPack.check)
-		return -1;
-
-	//PRINTF("Hash: %x", Murmur::mm_hash_32((uint8_t*)&comPack, 4));
-
-	switch (comPack.id) {
-	case FORMAT_SD:
-		//storageController.format();
-		break;
-
-	default:
-		return -1;
-	}
-
-	//Telecommand::counter++;
-	return 0;
+void Telecommand::init() {
 }
 
 void Telecommand::run() {
-    DpCommand comPack;
 
-    decodeCommand(comPack);
+	TelecommandData telecommandData;
+	char buffer;
+	string command = "";
 
+	while (1) {
+		BT2UART.suspendUntilDataReady();
+		BT2UART.read(&buffer, 1);
+
+		switch (buffer) {
+		case '$':
+			command = "";
+			break;
+		case '#':
+			telecommandData.telecommand = command;
+			TelecommandDataTopic.publish(telecommandData);
+			break;
+		default:
+			command += buffer;
+			break;
+		}
+	}
+
+//    DpCommand comPack;
+//    decodeCommand(comPack);
 }

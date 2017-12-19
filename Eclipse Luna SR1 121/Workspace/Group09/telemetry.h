@@ -11,7 +11,9 @@
 #include "rodos.h"
 #include "topics.h"
 #include "structs.h"
-#include "murmur.h"
+#include "globals.h"
+
+using namespace std;
 
 //#define ACTIVATE_DEBUG_DL
 

@@ -6,64 +6,71 @@
  */
 
 #include "telemetry.h"
+#include "rodos.h"
 #include <stdio.h>
 #include "hal.h"
 #include "math.h"
 #include <string>
 
-//static Application module01("Template", 2001);
+using std::string;
 
-#define BT_UART UART_IDX2
-#define USB_UART UART_IDX3
+//#define USB_UART UART_IDX3
 
-#define IMU_I2C I2C_IDX2
-
-HAL_UART BT2UART(BT_UART);
+//#define IMU_I2C I2C_IDX2
 
 //#define DEBUG_SEND_NO_TELEMETRY
 
 Telemetry telemetry;
 
+CommBuffer<SensorData> SensorDataBuffer;
+Subscriber SensorDataSubscriber(SensorDataTopic, SensorDataBuffer);
+
+CommBuffer<GlobalsData> GlobalsDataBuffer;
+Subscriber GlobalsDataSubscriber(GlobalsDataTopic, GlobalsDataBuffer);
+
 Telemetry::Telemetry() {
 }
 
 void Telemetry::init() {
-
 }
 
 void Telemetry::run() {
-	TestData testData;
 	char string[50];
 
 	while (1) {
-		suspendCallerUntil(NOW()+500*MILLISECONDS);
+		PRINTF(" ");
+//		PRINTF("\ninside run telemetry");
 
-		SensorData Teledata;
-		//SensorDataBuffer.get(Teledata);
+		GlobalsData globalsData;
+		GlobalsDataBuffer.get(globalsData);
 
-		char buffer[50];
-		TestDataBuffer.get(testData);
+		SensorData sensorData;
+		SensorDataBuffer.get(sensorData);
 
-		//PRINTF("Hello Rodos, the time now is %f \r\n",SECONDS_NOW());
-
-		//sprintf(string, "IMU_STATUS %s \n",testData.i);
-
-//		sprintf(string, "IMU_STATUS %s \n",GreenLED.readPins() ? "true" : "false");
 //		BT2UART.write(string, strlen(string));
 
-		//BT2UART.read(string, strlen(string));
-		//GreenLED.setPins(string);
+		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX,
+				sensorData.gyroY, sensorData.gyroZ);
+		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX,
+				sensorData.accY, sensorData.accZ);
+		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX,
+				sensorData.magY, sensorData.magZ);
+		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
+		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
 
-		//BT2UART.suspendUntilDataReady();
-//		BT2UART.read(buffer, 1);
-//		PRINTF("Hello Rodos, the buffer now is %s \r\n",buffer);
-//		PRINTF("G: %d , %s , %f \n",Teledata.magX, Teledata.magY, Teledata.magZ);
-//		PRINTF("Temp: %s", Teledata.temperature);
+//		PRINTF("\nTM: %s", globalsData.status);
 
+		suspendCallerUntil(NOW()+1000*MILLISECONDS);
 	}
 }
 
-uint32_t Telemetry::generateChecksum(char *buffer, int size)
-{
-    return Murmur::mm_hash_32((uint8_t*)buffer, size);
-}
+class TelecommandDataSubscriber1: public SubscriberReceiver<TelecommandData> {
+public:
+	TelecommandDataSubscriber1() :
+			SubscriberReceiver<TelecommandData>(TelecommandDataTopic,
+					"TestDataSubscriber1") {
+	}
+	void put(TelecommandData &data) {
+		PRINTF("\nTC: %s", data.telecommand.c_str());
+	}
+} telecommandDataSubscriber1;

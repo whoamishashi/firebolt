@@ -9,6 +9,11 @@
 #define STRUCTS_H_
 
 #include "rodos.h"
+#include <string>
+#include <cstdlib>
+#include <sstream>
+
+using namespace std;
 
 #define SYNC_COMM   (uint8_t)0xA1 // 0b10100001
 
@@ -24,9 +29,18 @@ enum Status {
 	SD_DL_PROGRESS = 6
 };
 
-//test topic
-struct TestData {
-	char i[100];
+//typedef enum{
+//        Aksan = 0,
+//        Mandy = 1,
+//        Sahriani = 2
+//};
+
+struct TelecommandData {
+	std::string telecommand;
+};
+
+struct GlobalsData {
+	char status[50];
 };
 
 struct __attribute__((packed)) DpCommand {
@@ -36,19 +50,21 @@ struct __attribute__((packed)) DpCommand {
 	uint32_t check;
 };
 
-struct SensorData{
-	//safe messages for other threats
-	char i[100];
-	char e[100];
-	//Offsets
-	int16_t offGyroX,offGyroY,offGyroZ;
-	char offAccX[12],offAccY[12],offAccZ[12];
-	char offMagX[12],offMagY[12],offMagZ[12];
+struct ActuatorData {
 	//Actual values
-	char gyroX[12],gyroY[12],gyroZ[12];
-	char accX[12],accY[12],accZ[12];
-	int16_t magX,magY,magZ;
-	char temperature[12];
+	int mode;
+	bool dir;   // {1: anticlock, 0:cw}
+	float m_speed;
+	bool t1, t2, t3;  // {0:off, 1:on}
+};
+
+struct SensorData {
+	//Actual values
+	int16_t gyroX, gyroY, gyroZ;
+	int16_t accX, accY, accZ;
+	int16_t magX, magY, magZ;
+	int16_t temperature;
+	int32_t angleZ;
 };
 
 #endif /* STRUCTS_H_ */

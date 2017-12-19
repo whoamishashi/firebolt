@@ -11,10 +11,9 @@
 #include "rodos.h"
 #include "structs.h"
 
-extern Topic<TestData> TestDataTopic;
-extern CommBuffer<TestData> TestDataBuffer;
-
+extern Topic<TelecommandData> TelecommandDataTopic;
+extern Topic<GlobalsData> GlobalsDataTopic;
 extern Topic<SensorData> SensorDataTopic;
-extern CommBuffer<SensorData> SensorDataBuffer;
+extern Topic<ActuatorData> ActuatorDataTopic;
 
 #endif /* TOPICS_H_ */

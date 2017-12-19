@@ -11,15 +11,23 @@
 #include "rodos.h"
 #include "topics.h"
 #include "structs.h"
+#include<string>
+#include <cstdlib>
+#include <sstream>
+#include <vector>
+#include <iterator>
+using namespace std;
 
 class ActuatorServo: public Thread {
 
 private:
-
+	int servo_pwm;
 public:
 	ActuatorServo();
 	void init();
 	void run();
+	vector<string> split(string str, char delimiter);
+
 };
 
 extern ActuatorServo actuatorServo;

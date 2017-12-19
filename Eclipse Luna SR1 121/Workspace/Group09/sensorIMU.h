@@ -17,7 +17,6 @@
 #include "math.h"
 #include <string>
 
-
 #define IMU_I2C I2C_IDX2
 
 // Register for LSM9DS0
@@ -33,13 +32,12 @@
 // MSB for setups
 #define MSB						0x80
 
-
 //Maximum Range of IMU Measurements
 #define GYRO_MAX 	2000	// degree per second //should be optimized
 #define ACC_MAX		2		// 2G
 #define MAG_MAX		2		// 2Gauss
 // Calibration Values
-#define CALI_G		70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
+#define CALI_G		7		// Gyro [(1/100)*DegPerSec/digit]		//70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
 #define CALI_A		0.061	// Acc  [mG/LSB]				in DataSheet = "LA_So"
 #define CALI_M		0.08	// Mag  [milliGauss/LSB] 		in DataSheet = "M_GN"
 #define CALI_T		8		// Temp [LSB/°C]				from Slides
@@ -55,19 +53,20 @@
 
 class SensorIMU: public Thread {
 private:
+	int16_t offGyroX, offGyroY, offGyroZ;
+	int16_t offAccX, offAccY, offAccZ;
+	int16_t offMagX, offMagY, offMagZ;
+	int32_t _angleZ;
+
 //	uint8_t DATA[2];
 //	TestData imuData;
 //	uint8_t LSM9DS0_CTRL_REG1_G[2] = { 0x20, 0b01001111 };
 //	uint8_t LSM9DS0_OUT_X_H_G[1] = { 0x29 };
 
-
-
-
-	SensorData imuData;
-
-	//uint8_t LSM9DS0_OUT_X_H_G[1] = {0x28};
+//uint8_t LSM9DS0_OUT_X_H_G[1] = {0x28};
 
 public:
+	SensorData imuData;
 	SensorIMU();
 	void init();
 	void run();
@@ -77,7 +76,9 @@ public:
 	void GyroCalibration();
 	void AccCalibration();
 	void MagCalibration();
-	void readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray, int numberOfBits);
+	void readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray,
+			int numberOfBits);
+	void AngleGyro();
 };
 
 extern SensorIMU sensorIMU;

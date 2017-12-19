@@ -1,16 +1,13 @@
 /*
- * Topics.cpp
+ * topics.cpp
  *
- *  Created on: 03.12.2017
- *      Author: I8FL-PC01-G01
+ *  Created on: Dec 15, 2017
+ *      Author: shashi
  */
 
-#include "topics.h"
+#include"topics.h"
 
-Topic<TestData> TestDataTopic(-1, "Test Data");
-CommBuffer<TestData> TestDataBuffer;
-Subscriber TestDataSubscriber(TestDataTopic, TestDataBuffer);
-
+Topic<TelecommandData> TelecommandDataTopic(-1, "Telecommand Data");
+Topic<GlobalsData> GlobalsDataTopic(-1, "Globals Data");
 Topic<SensorData> SensorDataTopic(-1, "Sensor Data");
-CommBuffer<SensorData> SensorDataBuffer;
-Subscriber SensorDataSubscriber(SensorDataTopic, SensorDataBuffer);
+Topic<ActuatorData> ActuatorDataTopic(-1, "Actuator Data");
