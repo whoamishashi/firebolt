@@ -50,6 +50,21 @@ struct __attribute__((packed)) DpCommand {
 	uint32_t check;
 };
 
+
+struct MotorData{
+	int32_t sensorMotorSpeed;
+	double 	controlled_m_speed;
+
+};
+
+struct SurveillanceData {
+	float 	batteryVoltage;
+	float 	batteryCurrent;
+	int 	asdf;
+};
+
+
+
 struct ActuatorData {
 	//Actual values
 	int mode;
