@@ -16,5 +16,7 @@ extern Topic<TelecommandData> TelecommandDataTopic;
 extern Topic<GlobalsData> GlobalsDataTopic;
 extern Topic<SensorData> SensorDataTopic;
 extern Topic<ActuatorData> ActuatorDataTopic;
+extern Topic<SurveillanceData> SurveillanceDataTopic;
+extern Topic<MotorData> MotorDataTopic;
 
 #endif /* LIB_TOPICS_H_ICS_H_ */
