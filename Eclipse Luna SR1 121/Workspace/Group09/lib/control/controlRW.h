@@ -16,8 +16,11 @@
 #include "stm32f4xx_tim.h"
 #include "../hal.h"
 #include <stdio.h>
-#include <string>
+//#include <string>
 #include "math.h"
+#include "../topics.h"
+#include "../structs.h"
+
 
 //Motor channels
 #define ENCLA_PIN 			GPIO_Pin_0				//PA0
@@ -62,15 +65,27 @@ private:
 	static volatile int32_t encoderSum;
 	static volatile int32_t encoderDiff;
 
+	 double input, RWC_out, setpoint;
+	 double sum_err , last_err,err;
+
+	 int64_t now, last_time, time_change;
+	 double diff_err, error, last_error;
+
 	//Timing
 	float time, dt;
-	void init();
-	void run();
 	void encoderInit();
 	void encoderReset();
 	void encoderRead();
 
 public:
+	void init();
+	void run();
+	MotorData motorData;
+	SurveillanceData surveillanceData;
+	void compute();
+	void set_PID_values(double Kp, double Ki,double Kd);
+	void set_Sample_Time(double NewSampleTime);
+	void set_cmd_Limits(double Min,double Max);
 	ControlRW();
 	int16_t getRPM();
 	void setDutyCycle(float d); //between +1 and -1
