@@ -45,7 +45,7 @@ void ActuatorServo::run() {
 
 		servo_pwm = atoi(splitted[7].c_str());
 
-		PRINTF("\nservo_pwm:%d", servo_pwm);
+		//PRINTF("\nservo_pwm:%d", servo_pwm);
 
 		Servo01.write(servo_pwm);
 
