@@ -29,6 +29,16 @@ Subscriber SensorDataSubscriber(SensorDataTopic, SensorDataBuffer);
 CommBuffer<GlobalsData> GlobalsDataBuffer;
 Subscriber GlobalsDataSubscriber(GlobalsDataTopic, GlobalsDataBuffer);
 
+CommBuffer<ActuatorData> ActuatorDataBuffer;
+Subscriber ActuatorDataSubscriber(ActuatorDataTopic, ActuatorDataBuffer);
+
+CommBuffer<MotorData> MotorDataBuffer;
+Subscriber MotorDataSubscriber(MotorDataTopic, MotorDataBuffer);
+
+CommBuffer<SurveillanceData> SurveillanceDataBuffer;
+Subscriber SurveillanceDataSubscriber(SurveillanceDataTopic, SurveillanceDataBuffer);
+
+
 Telemetry::Telemetry() {
 }
 
@@ -48,20 +58,38 @@ void Telemetry::run() {
 		SensorData sensorData;
 		SensorDataBuffer.get(sensorData);
 
+		ActuatorData actuatorData;
+		ActuatorDataBuffer.get(actuatorData);
+
+		MotorData motorData;
+		MotorDataBuffer.get(motorData);
+
+		SurveillanceData surveillanceData;
+		SurveillanceDataBuffer.get(surveillanceData);
+
+
 //		BT2UART.write(string, strlen(string));
 
-		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX,
-				sensorData.gyroY, sensorData.gyroZ);
-		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX,
-				sensorData.accY, sensorData.accZ);
-		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX,
-				sensorData.magY, sensorData.magZ);
-		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
-		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
+//		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX,
+//				sensorData.gyroY, sensorData.gyroZ);
+//		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX,
+//				sensorData.accY, sensorData.accZ);
+//		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX,
+//				sensorData.magY, sensorData.magZ);
+//		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
+//		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
+
+		PRINTF("\nTM: BAT: sensorData: wanted: %d", surveillanceData.asdf);
+		PRINTF("\nTM: RPM: sensorData: crpm %f", motorData.controlled_m_speed);
+		PRINTF("\nTM: RPM: sensorData: rpmi %d\n\n", motorData.sensorMotorSpeed);
+
+		//		PRINTF("\nTM: BAT: sensorData: volt: %d", surveillanceData.batteryVoltage);
+//		PRINTF("\nTM: BAT: sensorData: curr: %d", surveillanceData.batteryCurrent);
+//		PRINTF("\nTM: %s", globalsData.status);
 
 //		PRINTF("\nTM: %s", globalsData.status);
 
-		suspendCallerUntil(NOW()+1000*MILLISECONDS);
+		suspendCallerUntil(NOW()+100*MILLISECONDS);
 	}
 }
 
@@ -72,6 +100,6 @@ public:
 					"TestDataSubscriber1") {
 	}
 	void put(TelecommandData &data) {
-		PRINTF("\nTC: %s", data.telecommand.c_str());
+		//PRINTF("\nTC: %s", data.telecommand.c_str());
 	}
 } telecommandDataSubscriber1;
