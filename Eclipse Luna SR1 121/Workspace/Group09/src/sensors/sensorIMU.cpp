@@ -62,7 +62,7 @@ SensorIMU::SensorIMU() {
 void SensorIMU::GyroCalibration() {	//Tested and working
 	int32_t offset[3] = { 0, 0, 0 };
 //	SensorDataBuffer1.get(imuData);
-	suspendCallerUntil(NOW()+2000*MILLISECONDS);
+	suspendCallerUntil(NOW()+1000*MILLISECONDS);
 
 	for (int j = 0; j < 1000; j++) {
 		readout(CS_G, IMU_G_DATA, temp_GAM, 6);
@@ -150,7 +150,7 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 			//PRINTF("temp %d\n",temp_GAM[2]);
 		}
 		sumZ = sumZ + (temp_GAM[2] - offGyroZ);
-		suspendCallerUntil(NOW()+10*MILLISECONDS);
+		suspendCallerUntil(NOW()+1000*NANOSECONDS);
 	}
 	sumZ /= 10;
 
@@ -240,18 +240,30 @@ void SensorIMU::run() {
 	ImuRegSetup();
 	bool calibrationOver = false;
 
-	while (1) {
-
-		if (BlueButton.readPins()) {
-			//SensorCalibration();
-			GyroCalibration();
-			//MagCalibration();
-			AccCalibration();
+	if (BlueButton.readPins()==1) {
+		//SensorCalibration();
+		GyroCalibration();
+		//MagCalibration();
+		AccCalibration();
 //			AngleGyro();
-			calibrationOver = true;
+		calibrationOver = true;
 //			PRINTF("ohoh");
 
-		}
+	}
+
+	while (1) {
+//commented and put before while loop because BlueButton.readPins() now always gives 1 --> why??
+
+//		if (BlueButton.readPins()==1) {
+//			//SensorCalibration();
+//			GyroCalibration();
+//			//MagCalibration();
+//			AccCalibration();
+////			AngleGyro();
+//			calibrationOver = true;
+////			PRINTF("ohoh");
+//		}
+
 		if (calibrationOver) {
 			AngleGyro();
 			//read LSM9DS0 (IMU) Gyro
@@ -260,9 +272,9 @@ void SensorIMU::run() {
 			for (int i = 0; i < 3; i++) {
 				temp_GAM[i] *= CALI_G; 			// now in [mDeg/sec]
 			}
-			imuData.gyroX = temp_GAM[0] + offGyroX;
-			imuData.gyroY = temp_GAM[1] + offGyroX;
-			imuData.gyroZ = temp_GAM[2] + offGyroX;
+			imuData.gyroX = temp_GAM[0] - offGyroX;
+			imuData.gyroY = temp_GAM[1] - offGyroY;
+			imuData.gyroZ = temp_GAM[2] - offGyroZ;
 
 //		PRINTF("%d,",temp_GAM[0]);
 //		PRINTF("%d,",temp_GAM[1]);
@@ -280,9 +292,9 @@ void SensorIMU::run() {
 				temp_GAM[i] *= CALI_A;
 			}
 
-			imuData.accX = temp_GAM[0] + offAccX;
-			imuData.accY = temp_GAM[1] + offAccY;
-			imuData.accZ = temp_GAM[2] + offAccZ;
+			imuData.accX = temp_GAM[0] - offAccX;
+			imuData.accY = temp_GAM[1] - offAccY;
+			imuData.accZ = temp_GAM[2] - offAccZ;
 
 //		PRINTF("%d,",temp_GAM[0]);
 //		PRINTF("%d,",temp_GAM[1]);
@@ -320,7 +332,7 @@ void SensorIMU::run() {
 			temp_T[0] = temp_T[0] / CALI_T;
 //		PRINTF("%d\n",temp_T[0]);
 			imuData.temperature = temp_T[0] + 18;
-//		suspendCallerUntil(NOW()+500*MILLISECONDS);
+//		suspendCallerUntil(NOW()+10*MILLISECONDS);
 
 			//publish
 //		sprintf(imuData.i, "%d ,%d ,%d", DATA_A[0],DATA_A[1],DATA_A[2]);
