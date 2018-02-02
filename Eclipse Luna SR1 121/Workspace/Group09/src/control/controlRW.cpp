@@ -45,11 +45,11 @@ double cmdMax=9, cmdMin=-9;
 
 
 
-	CommBuffer<MotorData> MotorDataBuffer1;
-	Subscriber MotorDataSubscriber1(MotorDataTopic, MotorDataBuffer1);
+//	CommBuffer<MotorData> MotorDataBuffer1;
+//	Subscriber MotorDataSubscriber1(MotorDataTopic, MotorDataBuffer1);
 
-	CommBuffer<SurveillanceData> SurveillanceDataBuffer2;
-	Subscriber SurveillanceDataSubscriber2(SurveillanceDataTopic, SurveillanceDataBuffer2);
+	CommBuffer<ControlData> ControlDataBuffer1;
+	Subscriber ControlDataSubscriber1(ControlDataTopic, ControlDataBuffer1);
 
 
 
@@ -67,10 +67,11 @@ int16_t rpm;
 void ControlRW::run() {
 	init();
 	now = 0;
+
 	while(1){
 
-		SurveillanceDataBuffer2.get(surveillanceData);
-		setpoint = surveillanceData.asdf;
+		ControlDataBuffer1.get(controlData);
+		setpoint = controlData.desiredRWSpeed;
 
 		rpm = getRPM();
 

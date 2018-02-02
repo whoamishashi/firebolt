@@ -115,8 +115,9 @@ void SensorIMU::AccCalibration() {		//Tested and working
 			temp_GAM[i] *= CALI_A; 			// now in [G/100]
 			offset[i] = offset[i] + (int32_t) temp_GAM[i];
 			//PRINTF("%d    ", temp_GAM[i]);
-			temp_GAM[i] = 0;
 		}
+		for (int i = 0; i < 3; i++) {temp_GAM[i] = 0;}
+
 		suspendCallerUntil(NOW()+1*MILLISECONDS);
 	}
 
@@ -142,22 +143,23 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 //	SensorDataBuffer1.get(imuData);
 	int64_t deltaAngle = 0;
 	int32_t sumZ = 0;
-	int64_t past = NOW();
-	for (int j = 0; j < 10; j++) {
+	static int64_t past = NOW();
+	for (int j = 0; j < 1; j++) {
 		readout(CS_G, IMU_G_DATA, temp_GAM, 6);
 		for (int i = 0; i < 3; i++) {
 			temp_GAM[i] *= CALI_G; 			// now in [10*mDeg/sec]
 			//PRINTF("temp %d\n",temp_GAM[2]);
 		}
 		sumZ = sumZ + (temp_GAM[2] - offGyroZ);
-		suspendCallerUntil(NOW()+1000*NANOSECONDS);
 	}
-	sumZ /= 10;
+	sumZ /= 1;
 
-	//CARE ABOUT THE FACT THAT delaAngle, past and NOW() are int64_t!!!
-	deltaAngle = sumZ * (NOW()-past); 					// in [10*mDeg*nsec/sec]
+	//CARE ABOUT THE FACT THAT deltaAngle, past and NOW() are int64_t!!!
+	int64_t now = NOW();
+	deltaAngle = sumZ * (now-past);
+	past = now;// in [10*mDeg*nsec/sec]
 	//PRINTF("%lld\n",deltaAngle);
-	deltaAngle /= 1000000000;
+	deltaAngle /= 1000000000.0f;
 	//PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
 	//suspendCallerUntil(NOW()+500*MILLISECONDS);
 	_angleZ += (int32_t) deltaAngle;
@@ -289,6 +291,7 @@ void SensorIMU::run() {
 			readout(CS_XM, IMU_A_DATA, temp_GAM, 6);
 
 			for (int i = 0; i < 3; i++) {
+//				PRINTF("asdf %d %d...", i, temp_GAM[i]);
 				temp_GAM[i] *= CALI_A;
 			}
 
@@ -340,6 +343,8 @@ void SensorIMU::run() {
 
 			SensorDataTopic.publish(imuData);
 		}
+		suspendCallerUntil(NOW()+10000*NANOSECONDS);
+
 	}
 }
 

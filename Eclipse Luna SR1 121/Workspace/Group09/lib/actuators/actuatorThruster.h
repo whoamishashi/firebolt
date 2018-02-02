@@ -25,6 +25,7 @@ class ActuatorThruster: public Thread {
 private:
 	bool t1, t2, t3;
 public:
+	ControlData controlData;
 	ActuatorThruster();
 	void init();
 	void run();

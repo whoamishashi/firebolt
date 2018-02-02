@@ -81,7 +81,7 @@ public:
 	void init();
 	void run();
 	MotorData motorData;
-	SurveillanceData surveillanceData;
+	ControlData controlData;
 	void compute();
 	void set_PID_values(double Kp, double Ki,double Kd);
 	void set_Sample_Time(double NewSampleTime);

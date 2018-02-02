@@ -79,7 +79,7 @@ void ActuatorRW::run() {
 
 		//ReactionWheel.write(200);
 		int speed = (int) (motorData.controlled_m_speed*0.9);
-		//int speed1 = (int) (surveillanceData.asdf*8.4); // should be set to 8.4 for full range
+		//int speed1 = (int) (surveillanceData.asdf*0.9); // direct test value
 		if ((motorData.controlled_m_speed>0)&& (motorData.controlled_m_speed<=1000)) {
 			//calm motor before direction is changed
 
@@ -110,7 +110,7 @@ void ActuatorRW::run() {
 
 			ReactionWheel.write(_speed);
 		} else {
-			PRINTF("speedC %d",speed);
+			//PRINTF("speedC %d",speed);
 			HBRIDGE_A_INB.setPins(0);
 			HBRIDGE_A_INA.setPins(0);
 			//ReactionWheel.write(200);

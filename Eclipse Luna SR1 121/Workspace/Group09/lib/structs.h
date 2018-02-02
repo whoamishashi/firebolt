@@ -29,14 +29,25 @@ enum Status {
 	SD_DL_PROGRESS = 6
 };
 
-//typedef enum{
-//        Aksan = 0,
-//        Mandy = 1,
-//        Sahriani = 2
-//};
+enum AttitudeControlMode
+{
+	ATTITUDE_CONTROL_MODE_AUTO = 0,
+	ATTITUDE_CONTROL_MODE_MANUAL = 1,
+	ATTITUDE_CONTROL_MODE_ANGULAR_SPEED = 2,
+	ATTITUDE_CONTROL_MODE_DOCKING = 3
+};
 
 struct TelecommandData {
 	std::string telecommand;
+	double targetPosition[2];
+	int t1;
+	int t2;
+	int t3;
+	int additionalAngle;
+	int angle;
+	int angularVelocity;
+	int mode;
+
 };
 
 struct GlobalsData {
@@ -80,6 +91,23 @@ struct SensorData {
 	int16_t magX, magY, magZ;
 	int16_t temperature;
 	int32_t angleZ;
+};
+
+struct Modes {
+	int mode;
+};
+
+struct ControlData {	//this is for the upper Controllers to give the values to the sub-controller
+	int desiredRWSpeed;
+	int desiredThrusterValue;
+	int controlledT1;
+	int controlledT2;
+	int controlledT3;
+};
+
+struct FusedData {
+	double fusedPosition[2];
+	double fusedAngle;
 };
 
 #endif /* LIB_STRUCTS_H_ */
