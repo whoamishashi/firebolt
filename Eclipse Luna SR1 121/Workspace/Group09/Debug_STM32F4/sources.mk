@@ -30,4 +30,6 @@ SUBDIRS := \
 src \
 src/sensors \
 src/actuators \
+missions/dockingTracking/infrared/hwlib \
+missions/dockingTracking/infrared \
 

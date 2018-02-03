@@ -43,6 +43,8 @@ extern HAL_UART uart_stdout;
 }
 #define BT2UART uart_stdout
 
+extern HAL_UART RSPUART;
+
 class Globals: public Thread {
 private:
 //	uint8_t DATA[12];

@@ -1,12 +1,12 @@
 /*
- * telecommand.h
+ * raspberryComm.h
  *
- *  Created on: 03.12.2017
- *      Author: I8FL-PC01-G01
+ *  Created on: Jan 31, 2018
+ *      Author: shashi
  */
 
-#ifndef LIB_TELECOMMAND_H_
-#define LIB_TELECOMMAND_H_
+#ifndef LIB_RASPBERRYCOMM_H_
+#define LIB_RASPBERRYCOMM_H_
 
 #include "rodos.h"
 #include "topics.h"
@@ -19,15 +19,15 @@
 
 using namespace std;
 
-class Telecommand: public Thread {
+class RaspberryComm: public Thread {
 private:
 //	static int counter;
 
 public:
-	Telecommand();
+	RaspberryComm();
 	void init();
 	void run();
 	vector<string> split(string str, char delimiter);
 };
 
-#endif /* LIB_TELECOMMAND_H_ */
+#endif /* LIB_RASPBERRYCOMM_H_ */

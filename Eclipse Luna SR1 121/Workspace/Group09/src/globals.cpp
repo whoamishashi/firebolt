@@ -12,7 +12,7 @@
 #include <string>
 
 //HAL_UART BT2UART(BT_UART);
-//HAL_UART USB2UART(USB_UART);
+HAL_UART RSPUART(UART_IDX5);
 
 //HAL_GPIO GreenLED(LED_GREEN);
 HAL_GPIO RedLED(LED_RED);
@@ -31,6 +31,7 @@ Globals::Globals() {
 void Globals::init() {
 	RedLED.init(true, 1, 0);
 	//BT2UART.init(921600);
+	RSPUART.init(115200);
 }
 
 void Globals::run() {

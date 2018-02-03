@@ -11,6 +11,8 @@ RM := rm -rf
 -include src/sensors/subdir.mk
 -include src/actuators/subdir.mk
 -include src/subdir.mk
+-include missions/dockingTracking/infrared/hwlib/subdir.mk
+-include missions/dockingTracking/infrared/subdir.mk
 -include subdir.mk
 -include objects.mk
 

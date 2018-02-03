@@ -54,6 +54,22 @@ struct GlobalsData {
 	char status[50];
 };
 
+struct IRData {
+	float range1;
+	float range2;
+	float distance;
+	float angle;
+};
+
+struct ObjectRecognitionData {
+};
+
+struct StarTrackerData {
+};
+
+struct RadioData {
+};
+
 struct __attribute__((packed)) DpCommand {
 	uint8_t sync;
 	uint8_t id;
@@ -108,6 +124,12 @@ struct ControlData {	//this is for the upper Controllers to give the values to t
 struct FusedData {
 	double fusedPosition[2];
 	double fusedAngle;
+};
+
+struct TelecommandMeasurements {  //to control topic
+  float st_x;
+  float st_y;
+  float st_angle;
 };
 
 #endif /* LIB_STRUCTS_H_ */

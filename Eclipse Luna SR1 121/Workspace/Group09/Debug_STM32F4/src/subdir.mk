@@ -5,18 +5,21 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/globals.cpp \
+../src/raspberryComm.cpp \
 ../src/telecommand.cpp \
 ../src/telemetry.cpp \
 ../src/topics.cpp 
 
 OBJS += \
 ./src/globals.o \
+./src/raspberryComm.o \
 ./src/telecommand.o \
 ./src/telemetry.o \
 ./src/topics.o 
 
 CPP_DEPS += \
 ./src/globals.d \
+./src/raspberryComm.d \
 ./src/telecommand.d \
 ./src/telemetry.d \
 ./src/topics.d 
