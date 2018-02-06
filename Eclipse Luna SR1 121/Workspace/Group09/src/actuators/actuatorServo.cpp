@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "hal.h"
 #include "math.h"
+#include "../../lib/globals.h"
 #include<string>
 #include <cstdlib>
 #include <sstream>
@@ -18,7 +19,7 @@
 using namespace std;
 
 //HAL_GPIO Servo1(GPIO_073); /* declare HAL_GPIO for GPIO_036 = PC4 (HBRIDGE-A INA pin) */
-HAL_PWM Servo01(PWM_IDX00);
+//HAL_PWM Servo01(PWM_IDX00);
 
 ActuatorServo actuatorServo;
 
@@ -32,11 +33,13 @@ ActuatorServo::ActuatorServo() {
 
 void ActuatorServo::init() {
 //	Servo1.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
-	Servo01.init(50, 20000);
+//	Servo01.init(50, 20000);
 }
 
 void ActuatorServo::run() {
 //	init();
+//	suspendCallerUntil(7500000000);
+//	Servo01.write(1900);
 	while (1) {
 		TelecommandData telecommandData;
 		ActuatorServo_TelecommandDataBuffer.get(telecommandData);
@@ -47,14 +50,14 @@ void ActuatorServo::run() {
 
 		//PRINTF("\nservo_pwm:%d", servo_pwm);
 
-		Servo01.write(servo_pwm);
+//		Servo01.write(servo_pwm);
 
-//		for (int var = 1000; var <= 2000; ++var) {
+//		for (int var = 1000; var <= 1900; ++var) {
 //			Servo01.write(var);
 //			suspendCallerUntil(NOW()+2*MILLISECONDS);
 //		}
 //
-//		for (int var = 2000; var >= 1000; --var) {
+//		for (int var = 1900; var >= 1000; --var) {
 //			Servo01.write(var);
 //			suspendCallerUntil(NOW()+2*MILLISECONDS);
 //		}
