@@ -12,6 +12,7 @@
 
 #include "structs.h"
 
+
 extern Topic<GlobalsData> GlobalsDataTopic;
 extern Topic<SensorData> SensorDataTopic;
 extern Topic<ActuatorData> ActuatorDataTopic;
@@ -24,7 +25,6 @@ extern Topic<TelecommandMeasurements> TelecommandMeasurementsDataTopic; //to be 
 extern Topic<TelecommandData> TelecommandDataTopic;
 extern Topic<StarTrackerData> StarTrackerDataTopic;				//Mission: star tracker
 extern Topic<RadioData> RadioDataTopic;							//Mission: radio positioning
-extern Topic<IRData> itInfraredDataTopic;						//Mission: docking tracking
+extern Topic<IRData> IRDataTopic;								//Mission: docking tracking
 extern Topic<ObjectRecognitionData> ObjectRecognitionDataTopic;	//Mission: object recognition
-
 #endif /* LIB_TOPICS_H_ICS_H_ */

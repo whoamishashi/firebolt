@@ -10,6 +10,7 @@
 
 #include "rodos.h"
 #include "topics.h"
+#include "hal.h"
 #include <cstdlib>
 #include <sstream>
 #include <vector>
@@ -37,6 +38,8 @@ using namespace std;
 #define LED_ORANGE GPIO_061
 #define LED_RED GPIO_062
 #define LED_BLUE GPIO_063
+
+extern HAL_I2C i2c2_bus;
 
 namespace RODOS {
 extern HAL_UART uart_stdout;
