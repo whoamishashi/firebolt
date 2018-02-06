@@ -34,20 +34,37 @@ enum AttitudeControlMode
 	ATTITUDE_CONTROL_MODE_AUTO = 0,
 	ATTITUDE_CONTROL_MODE_MANUAL = 1,
 	ATTITUDE_CONTROL_MODE_ANGULAR_SPEED = 2,
-	ATTITUDE_CONTROL_MODE_DOCKING = 3
+	ATTITUDE_CONTROL_MODE_DOCKING = 3,
+	ATTITUDE_CONTROL_MODE_OBJECTRECOGNITION = 4,
+	ATTITUDE_CONTROL_MODE_SEMIMANUAL = 5
 };
 
 struct TelecommandData {
-	std::string telecommand;
-	double targetPosition[2];
-	int t1;
-	int t2;
-	int t3;
-	int additionalAngle;
-	int angle;
-	int angularVelocity;
-	int mode;
 
+	std::string telecommand;				//{CMD}
+
+	int mode;								//{-1:standby,
+											//	0:automatic (starTracker, radioPositioning),
+											//	1:manual,
+											//	2:angVelang ,
+											//	3:dockingTracking,
+											//	4:objectRecognition}
+
+	//manual
+	int t1;									//{0:off,1:on}
+	int t2;									//{0:off,1:on}
+	int t3;									//{0:off,1:on}
+	int rotateDelta;  						//{-1:anticw,0:doNothing,1:cw}
+	int rwRotationSpeed;						//wheel[-1000dps, 1000dps]
+	int servoAngle;							//{940:down, 1900:straight}
+	int activateMagnet;						//{0:inactive, 1:active}
+
+	//automatic
+	double targetPosition_x;				//{[0m,2m]:valid, 9999:invalid}
+	double targetPosition_y;				//[0m,2m]
+	int desiredAngle;						//[0deg, 360deg]
+	int desiredAngularVel;					//satellite[-180dps, 180dps]
+	int rotate180;  						//{0:doNothing,1:rotate}
 };
 
 struct GlobalsData {
@@ -125,11 +142,16 @@ struct FusedData {
 	double fusedPosition[2];
 	double fusedAngle;
 };
-
 struct TelecommandMeasurements {  //to control topic
   float st_x;
   float st_y;
   float st_angle;
 };
+
+struct IRData {
+	uint8_t range1, range2;
+	float distance, angle;
+};
+
 
 #endif /* LIB_STRUCTS_H_ */
