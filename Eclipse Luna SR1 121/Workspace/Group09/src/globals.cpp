@@ -16,7 +16,7 @@ HAL_UART RSPUART(UART_IDX5);
 
 //HAL_GPIO GreenLED(LED_GREEN);
 HAL_GPIO RedLED(LED_RED);
-
+HAL_I2C i2c2_bus(I2C_IDX2);
 Globals globals;
 
 //CommBuffer<TestData> TestDataBuffer;
@@ -30,6 +30,7 @@ Globals::Globals() {
 
 void Globals::init() {
 	RedLED.init(true, 1, 0);
+	i2c2_bus.init(400000);
 	//BT2UART.init(921600);
 	RSPUART.init(115200);
 }
