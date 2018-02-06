@@ -37,7 +37,7 @@
 #define ACC_MAX		2		// 2G
 #define MAG_MAX		2		// 2Gauss
 // Calibration Values
-#define CALI_G		7		// Gyro [(1/100)*DegPerSec/digit]		//70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
+#define CALI_G		-7		// Gyro [(1/100)*DegPerSec/digit]		//70		// Gyro [milliDegPerSec/digit] 	in DataSheet = "G_So"
 #define CALI_A		0.061	// Acc  [mG/LSB]				in DataSheet = "LA_So"
 #define CALI_M		0.08	// Mag  [milliGauss/LSB] 		in DataSheet = "M_GN"
 #define CALI_T		8		// Temp [LSB/°C]				from Slides
@@ -57,6 +57,7 @@ private:
 	int16_t offAccX, offAccY, offAccZ;
 	int16_t offMagX, offMagY, offMagZ;
 	int32_t _angleZ;
+	int64_t	_vel[3], _pos[3];
 
 //	uint8_t DATA[2];
 //	TestData imuData;
@@ -79,6 +80,7 @@ public:
 	void readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray,
 			int numberOfBits);
 	void AngleGyro();
+	void acc2pos();
 };
 
 extern SensorIMU sensorIMU;

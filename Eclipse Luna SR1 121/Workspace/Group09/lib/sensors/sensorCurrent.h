@@ -24,6 +24,7 @@ public:
 	Surveillance();
 	void init();
 	void run();
+//	void readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray, int numberOfBits);
 
 };
 
