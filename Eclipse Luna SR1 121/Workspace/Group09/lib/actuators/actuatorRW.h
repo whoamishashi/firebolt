@@ -35,6 +35,7 @@ public:
 	void init();
 	void run();
 	vector<string> split(string str, char delimiter);
+	void nehafunction();
 };
 
 extern ActuatorRW actuatorRW;
