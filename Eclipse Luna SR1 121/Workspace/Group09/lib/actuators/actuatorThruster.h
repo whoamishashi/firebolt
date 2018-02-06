@@ -29,7 +29,7 @@ public:
 	ActuatorThruster();
 	void init();
 	void run();
-	vector<string> split(string str, char delimiter);
+//	vector<string> split(string str, char delimiter);
 };
 
 extern ActuatorThruster actuatorThruster;
