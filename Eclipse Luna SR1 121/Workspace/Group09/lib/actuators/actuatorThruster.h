@@ -16,7 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
-
+#include "../globals.h"
 #include "../topics.h"
 using namespace std;
 

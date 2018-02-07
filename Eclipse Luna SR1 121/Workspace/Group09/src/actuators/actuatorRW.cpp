@@ -19,8 +19,12 @@
 using namespace std;
 
 using std::string;
+HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
 
-////HBridge-A
+HAL_GPIO HBRIDGE_RW_A(HBRIDGECA);
+HAL_GPIO HBRIDGE_RW_B(HBRIDGECB);
+HAL_PWM ReactionWheel(HBRIDGE_TIMER_C);
+
 //HAL_GPIO HBRIDGE_A_INA(GPIO_036); /* -declare HAL_GPIO for GPIO_036 = PC4 (A-HBRIDGE-A INA pin) */
 //HAL_GPIO HBRIDGE_A_INB(GPIO_017); /* declare HAL_GPIO for GPIO_017 = PB1 (A-HBRIDGE-B INA pin) */
 //HAL_PWM ReactionWheel(PWM_IDX12); /* declare HAL_PWM for PWM_IDX12 = TIM4-CH1 (HBRIDGE-A), please refer to hal_pwm.h for correct PWM mapping*/
@@ -35,13 +39,11 @@ using std::string;
 //HAL_GPIO HBRIDGE_A_INB(GPIO_074); /* declare HAL_GPIO for GPIO_079 = PE10 (C-HBRIDGE-B INA pin) */
 //HAL_PWM ReactionWheel(PWM_IDX14); /* declare HAL_PWM for PWM_IDX14 = TIM4-CH3 (HBRIDGE-C), please refer to hal_pwm.h for correct PWM mapping*/
 ////HBridge-D
-HAL_GPIO HBRIDGE_A_INA(GPIO_076); /* declare HAL_GPIO for GPIO_076 = PE12 (D-HBRIDGE-A INA pin) */
-HAL_GPIO HBRIDGE_A_INB(GPIO_079); /* declare HAL_GPIO for GPIO_079 = PE15 (D-HBRIDGE-B INA pin) */
-HAL_PWM ReactionWheel(PWM_IDX15); /* declare HAL_PWM for PWM_IDX15 = TIM4-CH4 (HBRIDGE-D), please refer to hal_pwm.h for correct PWM mapping*/
+//HAL_GPIO HBRIDGE_A_INA(GPIO_076); /* declare HAL_GPIO for GPIO_076 = PE12 (D-HBRIDGE-A INA pin) */
+//HAL_GPIO HBRIDGE_A_INB(GPIO_079); /* declare HAL_GPIO for GPIO_079 = PE15 (D-HBRIDGE-B INA pin) */
+//HAL_PWM ReactionWheel(PWM_IDX15); /* declare HAL_PWM for PWM_IDX15 = TIM4-CH4 (HBRIDGE-D), please refer to hal_pwm.h for correct PWM mapping*/
 
 
-
-HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
 
 ActuatorRW actuatorRW;
 
@@ -63,15 +65,16 @@ ActuatorRW::ActuatorRW() {
 
 void ActuatorRW::init() {
 	HBRIDGE_EN.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
-	HBRIDGE_A_INA.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
-	HBRIDGE_A_INB.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
+	HBRIDGE_RW_A.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
+	HBRIDGE_RW_B.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
 	ReactionWheel.init(5000, 1000); /* initialization of the HAL object should be called one time only in the project*/
 	//ReactionWheel.init(10000, 8400); // optional duty cycle
 
 }
 
 void ActuatorRW::run() {
-//	init();
+	init();
+	suspendCallerUntil(WAITINGTIME_UNTIL_START*SECONDS);
 	while (1) {
 
 		MotorData motorData;
@@ -79,23 +82,21 @@ void ActuatorRW::run() {
 
 		TelecommandData telecommandData;
 		ActuatorRW_TelecommandDataBuffer.get(telecommandData);
-
-		vector<string> splitted = split(telecommandData.telecommand.c_str(), ';');
-		dir = atoi(splitted[2].c_str()) == 0 ? 0 : 1;
-		m_speed = atoi(splitted[3].c_str());
+//FOR MAKING PROOF VIDEO
+//		suspendCallerUntil(10*SECONDS);
+//		motorData.controlled_m_speed = 500;
+//		if(NOW()>(18*SECONDS)){motorData.controlled_m_speed = -500;}
+//		if(NOW()>(26*SECONDS)){motorData.controlled_m_speed = -999;}
 
 		speed = (int) (motorData.controlled_m_speed);
-//TODO: delete hardcoded speed
-		speed = 0;
-		suspendCallerUntil(7000000000);
-		speed = 500;
+
 		if ((motorData.controlled_m_speed>0)&& (motorData.controlled_m_speed<=1000)) {
 			//change direction
 //			HBRIDGE_A_INB.setPins(0);
 //			HBRIDGE_A_INA.setPins(0);
 //			suspendCallerUntil(NOW()+20*MILLISECONDS);
-			HBRIDGE_A_INB.setPins(0);
-			HBRIDGE_A_INA.setPins(1);
+			HBRIDGE_RW_B.setPins(0);
+			HBRIDGE_RW_A.setPins(1);
 			speed--;
 //			PRINTF("SpeedA %d",speed);
 			ReactionWheel.write(speed);
@@ -105,19 +106,19 @@ void ActuatorRW::run() {
 //			HBRIDGE_A_INA.setPins(0);
 //			suspendCallerUntil(NOW()+20*MILLISECONDS);
 
-			HBRIDGE_A_INB.setPins(1);
-			HBRIDGE_A_INA.setPins(0);
+			HBRIDGE_RW_B.setPins(1);
+			HBRIDGE_RW_A.setPins(0);
 			speed++;
 //			PRINTF("SpeedB %d",speed);
-			int _speed = abs(speed);
-
+			int _speed = (int) abs(speed);
+//			PRINTF("Absolute SpeedB %d",speed);
 			ReactionWheel.write(_speed);
 		} else {
-			HBRIDGE_A_INB.setPins(0);
-			HBRIDGE_A_INA.setPins(0);
+			HBRIDGE_RW_B.setPins(0);
+			HBRIDGE_RW_A.setPins(0);
 //			PRINTF("SpeedC %d",speed);
 		}
-		suspendCallerUntil(NOW()+10*MILLISECONDS);
+		suspendCallerUntil(NOW()+100*MILLISECONDS);
 
 	}
 }

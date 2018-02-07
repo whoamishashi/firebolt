@@ -2,7 +2,7 @@
  * mode2.h
  *
  *  Created on: 27 Jan 2018
- *      Author: felix
+ *      Author: Felix Hessinger
  */
 
 #ifndef LIB_CONTROL_MODE2_AV_H_
@@ -11,6 +11,7 @@
 #include "rodos.h"
 #include "../structs.h"
 #include "../topics.h"
+#include "../globals.h"
 
 
 

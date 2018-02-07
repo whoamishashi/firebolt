@@ -39,7 +39,7 @@ double cmdMax_linp = 0.5, cmdMin_linp = -0.5; //limiting thrust cmd of vehicle t
 /////////////////////////////////////////////////////////////////////
 // MODE1
 /////////////////////////////////////////////////////////////////////
-HAL_GPIO Magnet(GPIO_079); /* declare HAL_GPIO for GPIO_079 = P15 (HBRIDGE-D INB pin) */
+HAL_GPIO Magnet(HBRIDGEAB);
 int servoAngle;
 double additionalAngle;
 int rotate180;
@@ -138,9 +138,18 @@ void Mode2::run() {
 		int desiredMS = 0;
 		theta_set_point = 0;
 //		setpoint_ap = 0;
+
+//FOR MAKING PROOF VIDEO
 //		modes2.mode = 1; //here telemetryDataBuffer has to be called and modes2.mode deleted
-//		t1=t2=1;
-//		t3=0;
+//		telecommandData.servoAngle=940;
+//		magnet = 1;
+//		if (NOW()>2*SECONDS){telecommandData.servoAngle=1900;}
+//		if (NOW()>4*SECONDS){t1=1;}
+//		if (NOW()>6*SECONDS){t2=1;t1=0;}
+//		if (NOW()>8*SECONDS){t3=1;t2=0;}
+//		if (NOW()>10*SECONDS){t3=0;}
+//		if (NOW()>30*SECONDS){magnet=0;}
+
 
 /////////////////////////////////////////////////////////////
 
@@ -153,10 +162,10 @@ void Mode2::run() {
 			Servo.write(940);
 			set_pointPos[0] = telecommandData.targetPosition_x;
 			set_pointPos[1] = telecommandData.targetPosition_y;
+			currentPos[1] = fusedData.x;
+			currentPos[1] = fusedData.y;
 
-			for (int i = 0; i < 2; i++) {
-				currentPos[i] = fusedData.fusedPosition[i];
-			}
+
 
 //////////////////
 // set test values for calibration of own controller

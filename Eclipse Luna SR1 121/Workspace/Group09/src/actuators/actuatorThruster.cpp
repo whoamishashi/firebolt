@@ -20,9 +20,9 @@ using namespace std;
 
 using std::string;
 // all 3 HAL_GPIO for Thrusters
-HAL_GPIO Thruster1(GPIO_072); /* declare HAL_GPIO for GPIO_072 = PE8 (HBRIDGE-C INA pin) */
-HAL_GPIO Thruster2(GPIO_074); /* declare HAL_GPIO for GPIO_074 = PE10 (HBRIDGE-C INB pin) */
-HAL_GPIO Thruster3(GPIO_076); /* declare HAL_GPIO for GPIO_076 = P12 (HBRIDGE-D INA pin) */
+HAL_GPIO Thruster1(HBRIDGEDA); /* declare HAL_GPIO for GPIO_072 = PE8 (HBRIDGE-C INA pin) */
+HAL_GPIO Thruster2(HBRIDGEDB); /* declare HAL_GPIO for GPIO_074 = PE10 (HBRIDGE-C INB pin) */
+HAL_GPIO Thruster3(HBRIDGEAA); /* declare HAL_GPIO for GPIO_076 = P12 (HBRIDGE-D INA pin) */
 
 ////HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
 

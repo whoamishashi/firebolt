@@ -39,16 +39,36 @@ using namespace std;
 #define LED_ORANGE GPIO_061
 #define LED_RED GPIO_062
 #define LED_BLUE GPIO_063
+#define BT2UART uart_stdout
 
-extern HAL_I2C i2c2_bus;
+//Defines for the H-BRIDGES
+//H-Bridge A
+#define HBRIDGEAA				GPIO_036
+#define HBRIDGEAB				GPIO_017
+#define HBRIDGE_TIMER_A			PWM_IDX12
+//H-Bridge B
+#define HBRIDGEBA				GPIO_016
+#define HBRIDGEBB				GPIO_071
+#define HBRIDGE_TIMER_B			PWM_IDX13
+//H-Bridge C
+#define HBRIDGECA				GPIO_072
+#define HBRIDGECB				GPIO_074
+#define HBRIDGE_TIMER_C			PWM_IDX14
+//H-Bridge D
+#define HBRIDGEDA				GPIO_076
+#define HBRIDGEDB				GPIO_079
+#define HBRIDGE_TIMER_D			PWM_IDX15
+
+
+
 
 namespace RODOS {
 extern HAL_UART uart_stdout;
 }
-#define BT2UART uart_stdout
 
-extern HAL_UART RSPUART;
 extern HAL_I2C i2c2_bus;
+extern int WAITINGTIME_UNTIL_START;
+extern HAL_UART RSPUART;
 
 class Globals: public Thread {
 private:
@@ -58,7 +78,6 @@ public:
 	Globals();
 	void init();
 	void run();
-	uint32_t redLEDtoggle(uint32_t buffer);
 };
 
 extern Globals globals;
