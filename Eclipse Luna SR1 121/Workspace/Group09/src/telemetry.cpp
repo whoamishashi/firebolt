@@ -83,19 +83,19 @@ void Telemetry::run() {
 
 //		BT2UART.write(string, strlen(string));
 
-//		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX, sensorData.gyroY, sensorData.gyroZ);
-//		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX, sensorData.accY, sensorData.accZ);
-//		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX, sensorData.magY, sensorData.magZ);
-//		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
-//		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
+		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX, sensorData.gyroY, sensorData.gyroZ);
+		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX, sensorData.accY, sensorData.accZ);
+		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX, sensorData.magY, sensorData.magZ);
+		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
+		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
 
-//		PRINTF("\nTM: RPM: sensorData: crpm %f", motorData.controlled_m_speed);
-//		PRINTF("\nTM: RPM: sensorData: rpmi %d\n\n", motorData.sensorMotorSpeed);
+		PRINTF("\nTM: RPM: sensorData: crpm %f", motorData.controlled_m_speed);
+		PRINTF("\nTM: RPM: sensorData: rpmi %d\n\n", motorData.sensorMotorSpeed);
 //IRData (Distance-Sensor)
-//		PRINTF("\n\nTM: IRD: IRData: Distance1: %f", iRData.range1);
-//		PRINTF("\nTM: IRD: IRData: Distance2: %f", iRData.range2);
-//		PRINTF("\nTM: IRD: IRData: Average Distance: %f", iRData.distance);
-//		PRINTF("\nTM: IRD: IRData: Angle: %f", iRData.angle);
+		PRINTF("\n\nTM: IRD: IRData: Distance1: %f", iRData.range1);
+		PRINTF("\nTM: IRD: IRData: Distance2: %f", iRData.range2);
+		PRINTF("\nTM: IRD: IRData: Average Distance: %f", iRData.distance);
+		PRINTF("\nTM: IRD: IRData: Angle: %f", iRData.angle);
 //Data for Testing purposes
 //		PRINTF("\nTM: BAT: sensorData: wanted: %d", surveillanceData.asdf);
 
@@ -107,9 +107,8 @@ void Telemetry::run() {
 //		PRINTF("angular acceleration %d\n", sensorData.accY);
 ////////////////////////////////////////////////////////////
 
-//		PRINTF("\n\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
 
-//		PRINTF("\nTM: CON: controlData: drws %d", controlData.desiredRWSpeed);
+		PRINTF("\nTM: CON: controlData: drws %d", controlData.desiredRWSpeed);
 //BatteryData:
 		PRINTF("\nTM: BAT: sensorData: volt: %f", surveillanceData.batteryVoltage);
 		PRINTF("\nTM: BAT: sensorData: curr: %f", surveillanceData.batteryCurrent);
