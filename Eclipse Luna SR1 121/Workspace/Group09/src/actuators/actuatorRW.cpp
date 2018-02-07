@@ -20,16 +20,28 @@ using namespace std;
 
 using std::string;
 
-HAL_GPIO HBRIDGE_A_INA(GPIO_036); /* -declare HAL_GPIO for GPIO_036 = PC4 (A-HBRIDGE-A INA pin) */
-HAL_GPIO HBRIDGE_A_INB(GPIO_017); /* declare HAL_GPIO for GPIO_017 = PB1 (A-HBRIDGE-B INA pin) */
+////HBridge-A
+//HAL_GPIO HBRIDGE_A_INA(GPIO_036); /* -declare HAL_GPIO for GPIO_036 = PC4 (A-HBRIDGE-A INA pin) */
+//HAL_GPIO HBRIDGE_A_INB(GPIO_017); /* declare HAL_GPIO for GPIO_017 = PB1 (A-HBRIDGE-B INA pin) */
+//HAL_PWM ReactionWheel(PWM_IDX12); /* declare HAL_PWM for PWM_IDX12 = TIM4-CH1 (HBRIDGE-A), please refer to hal_pwm.h for correct PWM mapping*/
+
 //optional gpio pins
+////HBridge-B
 //HAL_GPIO HBRIDGE_A_INA(GPIO_016); /* -declare HAL_GPIO for GPIO_036 = PB0 (B-HBRIDGE-A INA pin) */
 //HAL_GPIO HBRIDGE_A_INB(GPIO_071); /* declare HAL_GPIO for GPIO_017 = PE7 (B-HBRIDGE-B INA pin) */
-//HAL_GPIO HBRIDGE_A_INA(GPIO_076); /* declare HAL_GPIO for GPIO_076 = PE12 (D-HBRIDGE-A INA pin) */
-//HAL_GPIO HBRIDGE_A_INB(GPIO_079); /* declare HAL_GPIO for GPIO_079 = PE15 (D-HBRIDGE-B INA pin) */
+//HAL_PWM ReactionWheel(PWM_IDX13); /* declare HAL_PWM for PWM_IDX13 = TIM4-CH2 (HBRIDGE-B), please refer to hal_pwm.h for correct PWM mapping*/
+////HBridge-C
+//HAL_GPIO HBRIDGE_A_INA(GPIO_072); /* declare HAL_GPIO for GPIO_076 = PE08 (C-HBRIDGE-A INA pin) */
+//HAL_GPIO HBRIDGE_A_INB(GPIO_074); /* declare HAL_GPIO for GPIO_079 = PE10 (C-HBRIDGE-B INA pin) */
+//HAL_PWM ReactionWheel(PWM_IDX14); /* declare HAL_PWM for PWM_IDX14 = TIM4-CH3 (HBRIDGE-C), please refer to hal_pwm.h for correct PWM mapping*/
+////HBridge-D
+HAL_GPIO HBRIDGE_A_INA(GPIO_076); /* declare HAL_GPIO for GPIO_076 = PE12 (D-HBRIDGE-A INA pin) */
+HAL_GPIO HBRIDGE_A_INB(GPIO_079); /* declare HAL_GPIO for GPIO_079 = PE15 (D-HBRIDGE-B INA pin) */
+HAL_PWM ReactionWheel(PWM_IDX15); /* declare HAL_PWM for PWM_IDX15 = TIM4-CH4 (HBRIDGE-D), please refer to hal_pwm.h for correct PWM mapping*/
+
+
 
 HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
-HAL_PWM ReactionWheel(PWM_IDX12); /* declare HAL_PWM for PWM_IDX12 = TIM4-CH1 (HBRIDGE-A), please refer to hal_pwm.h for correct PWM mapping*/
 
 ActuatorRW actuatorRW;
 
@@ -73,11 +85,15 @@ void ActuatorRW::run() {
 		m_speed = atoi(splitted[3].c_str());
 
 		speed = (int) (motorData.controlled_m_speed);
+//TODO: delete hardcoded speed
+		speed = 0;
+		suspendCallerUntil(7000000000);
+		speed = 500;
 		if ((motorData.controlled_m_speed>0)&& (motorData.controlled_m_speed<=1000)) {
 			//change direction
-			HBRIDGE_A_INB.setPins(0);
-			HBRIDGE_A_INA.setPins(0);
-			suspendCallerUntil(NOW()+20*MILLISECONDS);
+//			HBRIDGE_A_INB.setPins(0);
+//			HBRIDGE_A_INA.setPins(0);
+//			suspendCallerUntil(NOW()+20*MILLISECONDS);
 			HBRIDGE_A_INB.setPins(0);
 			HBRIDGE_A_INA.setPins(1);
 			speed--;
@@ -85,9 +101,9 @@ void ActuatorRW::run() {
 			ReactionWheel.write(speed);
 		} else if ((motorData.controlled_m_speed<0) && (motorData.controlled_m_speed>=-1000)) {
 			//change direction
-			HBRIDGE_A_INB.setPins(0);
-			HBRIDGE_A_INA.setPins(0);
-			suspendCallerUntil(NOW()+20*MILLISECONDS);
+//			HBRIDGE_A_INB.setPins(0);
+//			HBRIDGE_A_INA.setPins(0);
+//			suspendCallerUntil(NOW()+20*MILLISECONDS);
 
 			HBRIDGE_A_INB.setPins(1);
 			HBRIDGE_A_INA.setPins(0);
