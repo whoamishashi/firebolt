@@ -13,9 +13,9 @@
 ControlRW controlRW;
 
 /////////////////////Values for Control of Reactionwheel/////////////
-double kp=0.05;						//0.141847319632733;
-double ki=0.005;					//0.0533184625505999;
-double kd=0.0001;						//0.0099070843796960;
+double kp=0.141847319632733;						//0.141847319632733;
+double ki=0.0533184625505999;						//0.0533184625505999;
+double kd=0.0099070843796960;						//0.0099070843796960;
 
 
 double measured, cmdInV, setpoint;
@@ -25,12 +25,13 @@ double cmdMax=9, cmdMin=-9;
 
 //	int16_t offGyroX, offGyroY, offGyroZ;
 	// local variables
-	static volatile int16_t oldLeftEncoder =0;
-	static volatile int16_t oldRightEncoder=0;
-	static volatile int16_t leftEncoder=0;
-	static volatile int16_t rightEncoder=0;
-	static volatile int16_t encoderSum=0;
-	static volatile int16_t encoderDiff=0;
+//	static volatile int16_t oldLeftEncoder =0;
+//	static volatile int16_t oldRightEncoder=0;
+//	static volatile int16_t leftEncoder=0;
+//	static volatile int16_t rightEncoder=0;
+//	static volatile int16_t encoderSum=0;
+//	static volatile int16_t encoderDiff=0;
+
 	//available to the rest of the code
 	//speeds
 	volatile int16_t leftCount;
@@ -71,18 +72,23 @@ void ControlRW::run() {
 	while(1){
 
 		ControlDataBuffer1.get(controlData);
-		setpoint = controlData.desiredRWSpeed;
+		setpoint = -controlData.desiredRWSpeed;
 
 		rpm = getRPM();
 
-		measured = (rpm*1000/7700);  // divided by 12000rpm times 1000 for write input (range 0 to 1000)(0to100%)
-		("InputFromSensor: %f\n",input);
-		RWC_out = 0;
+		measured = (rpm*1000/5500);  // divided by 12000rpm times 1000 for write input (range 0 to 1000)(0to100%)
+//		("InputFromSensor: %f\n",input);
+	///////////////Closed loop (for now only open loop control)
+//		RWC_out = 0;
 
-		compute();
+//		compute();
 		//suspendCallerUntil(NOW()+500*MILLISECONDS);
-		RWC_out= cmdInV*1000/9;
-		motorData.controlled_m_speed = RWC_out;
+//		RWC_out= cmdInV*1000/9;
+//		motorData.controlled_m_speed = RWC_out;
+	/////////////// uncomment uppper code for closed loop
+
+
+		motorData.controlled_m_speed = setpoint;
 		motorData.sensorMotorSpeed = rpm;
 		MotorDataTopic.publish(motorData);
 		suspendCallerUntil(NOW()+1*MILLISECONDS);
@@ -143,50 +149,7 @@ void ControlRW::compute() //function to be called in each sample time
 
 	/*change in values*/
 	last_measured=measured;
-//{
-//	/* time change*/
-//	now = NOW();
-//	//value transfer from nanoseconds to microseconds
-//	int toMicro = 1000;
-//	int toSec	= 1000000;
-//	time_change = (now-last_time)/toMicro;
-//
-//	/*calculating different error components for P,I and D*/
-//	err = setpoint - input;
-//	sum_err += err*time_change;			//timechange now in micro seconds
-//	diff_err = (err - last_error)/(time_change);
-//
-//	/*output*/
-//	double RWC_out_=kp*err + ki*sum_err/toSec ;//+ kd*diff_err*toSec;
-//	RWC_out = RWC_out_/100;
-//	/*change in values*/
-//	last_err=err;
-//	last_time=NOW();
-//
-//	}
-///////////// second try  ////////////////////
-//	/*calculating different error components for P,I and D*/
-//	double error = setpoint - measured; //proportional term
-//
-//	I_term += (ki*error); //integrating term
-//	if (I_term>cmdMax)I_term=cmdMax;
-//	else if (I_term<cmdMin)I_term=cmdMin;
-//
-//	double d_measured=measured-last_measured; //differential term
-//
-//	/*computing output of PID as cmd in voltage*/
-//	cmdInV=kp*error + ki*sum_err + kd*d_measured;
-//
-//	if (cmdInV>cmdMax)cmdInV=cmdMax;
-//	else if(cmdInV<cmdMin)cmdInV=cmdMin;
-//
-//	/*take this output, divide by 9.0 and multiply by 100 to give PWM level in percentage)*/
-//
-//	/*change in values*/
-//	last_measured=measured;
-
 	}
-
 
 
 
