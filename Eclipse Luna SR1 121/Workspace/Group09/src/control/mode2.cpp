@@ -8,6 +8,7 @@
 #include "../../lib/control/mode2.h"
 
 #include <stdio.h>
+#include "hal.h"
 #include <string>
 #include <math.h>
 
@@ -38,12 +39,17 @@ double cmdMax_linp = 0.5, cmdMin_linp = -0.5; //limiting thrust cmd of vehicle t
 /////////////////////////////////////////////////////////////////////
 // MODE1
 /////////////////////////////////////////////////////////////////////
-
+HAL_GPIO Magnet(GPIO_079); /* declare HAL_GPIO for GPIO_079 = P15 (HBRIDGE-D INB pin) */
+int servoAngle;
 double additionalAngle;
+int rotate180;
+int magnet;
 
 /////////////////////////////////////////////////////////////////////
 // MODE2
 /////////////////////////////////////////////////////////////////////
+// speed of reactionwheel
+int desiredRWSpeed;
 //angular-velocity-values
 double Kp_av = 0.7; 		//3.10651129527485;
 double Ki_av = 0.01; 		//42.3123158476514;
@@ -54,7 +60,7 @@ double measured_av, cmdInRpm_motor_av, setpoint_av;
 double I_term_av, last_measured_av;
 double kp_av, kd_av, ki_av;
 double SampleTime_av = 0.01; //sample time in sec (10 ms)
-double cmdMax_av = 60, cmdMin_av = -60; //limiting max speed of vehicle to 60rpm i.e one rotation per sec max.
+double cmdMax_av = 5500, cmdMin_av = -5500; //limiting max speed of vehicle to 60rpm i.e one rotation per sec max.
 
 //angular-position-values
 double Kp_ap = 2.5; 					//19.0570345025429;
@@ -66,7 +72,12 @@ double measured_ap, cmdInRpm_motor_ap, setpoint_ap;
 double I_term_ap, last_measured_ap;
 double kp_ap, kd_ap, ki_ap;
 double SampleTime_ap = 0.01; //sample time in sec (10 ms)
-double cmdMax_ap = 90, cmdMin_ap = -90; //limiting max angle of vehicle to 90 deg turn
+double cmdMax_ap = 5500, cmdMin_ap = -5500; //limiting max angle of vehicle to 90 deg turn
+
+/////////////////////////////////////////////////////////////////////
+// MODE3
+/////////////////////////////////////////////////////////////////////
+HAL_PWM Servo(PWM_IDX00);
 
 CommBuffer<Modes> ModesBuffer2;
 Subscriber ModesSubscriber2(ModesTopic, ModesBuffer2);
@@ -78,7 +89,11 @@ CommBuffer<FusedData> FusedDataBuffer2;
 Subscriber FusedDataSubscriber2(FusedDataTopic, FusedDataBuffer2);
 
 CommBuffer<TelecommandData> TelecommandDataBuffer2;
-Subscriber TelecommandDataSubscriber2(TelecommandDataTopic, TelecommandDataBuffer2);
+Subscriber TelecommandDataSubscriber2(TelecommandDataTopic,
+		TelecommandDataBuffer2);
+
+CommBuffer<IRData> IRDataBuffer2;
+Subscriber IRDataSubscriber2(IRDataTopic, IRDataBuffer2);
 
 Mode2 mode2;
 
@@ -91,62 +106,118 @@ void Mode2::init() {
 	set_PID_values_av(Kp_av, Ki_av, Kd_av);
 	set_PID_values_ap(Kp_ap, Ki_ap, Kd_ap);
 	set_PID_values_linp(Kp_linp, Ki_linp, Kd_linp);
+	Servo.init(50, 20000);
+	Magnet.init(true, 1, 0);
 
 }
 
 void Mode2::run() {
 
-	setpoint_av = 9999; //SET ANGULAR VELOCITY GOAL (999 is for disabling angle-velocity-control)// this has to be removed later
-	setpoint_ap = 10;
-	int desiredThrust = 0;
-	int desiredMS = 0;
-
 	while (1) {
 		ModesBuffer2.get(modes2);
-		modes2.mode = 1;
+
 		SensorDataBuffer2.get(sensorData);
 		FusedDataBuffer2.get(fusedData);
 		TelecommandDataBuffer2.get(telecommandData);
+//get all data needed for next control
+		setpoint_ap = telecommandData.desiredAngle;
+		setpoint_av = telecommandData.desiredAngularVel;
+		desiredRWSpeed = telecommandData.rwRotationSpeed;
+		t1 = telecommandData.t1;
+		t2 = telecommandData.t2;
+		t3 = telecommandData.t3;
+		rotate180 = telecommandData.rotate180;
+		magnet = telecommandData.activateMagnet;
+		servoAngle = telecommandData.servoAngle;
+
+/////////////////////////////////////////////////////////////
+// for testing purposes only
+/////////////////////////////////////////////////////////////
+		setpoint_av = 9999; //SET ANGULAR VELOCITY GOAL (9999 is for disabling angle-velocity-control)// this has to be removed later
+		int desiredThrust = 0;
+		int desiredMS = 0;
+		theta_set_point = 0;
+//		setpoint_ap = 0;
+//		modes2.mode = 1; //here telemetryDataBuffer has to be called and modes2.mode deleted
+//		t1=t2=1;
+//		t3=0;
+
+/////////////////////////////////////////////////////////////
+
+//		PRINTF("(mode2.cpp)Mode%d", modes2.mode);
+
+
 		switch (modes2.mode) {
 
 		case ATTITUDE_CONTROL_MODE_AUTO:
-			for (int i=0;i<2;i++){
-			currentPos[i] = fusedData.fusedPosition[i];
-			set_pointPos[i] = telecommandData.targetPosition[i];
+			Servo.write(940);
+			set_pointPos[0] = telecommandData.targetPosition_x;
+			set_pointPos[1] = telecommandData.targetPosition_y;
+
+			for (int i = 0; i < 2; i++) {
+				currentPos[i] = fusedData.fusedPosition[i];
 			}
-			anglePositionRedefinition();
+
+//////////////////
+// set test values for calibration of own controller
+/////////////////
+//			set_pointPos[0] = 0.0f;
+//			set_pointPos[1] = 0.0f;
+			currentPos[0]	= 0.0f;
+			currentPos[1]	= 0.0f;
+/////////////////
+
+			anglePositionRedefinition_Mode0();
 // here is missing something
-/////////// angle control
-			turn(theta_set_point);		//calculates the absolute value of the angle the vehicle has to point to in the end
+			/////////////////
+			//angle control
+			/////////////////
 			measured_ap = (double) sensorData.angleZ / 100;
 			compute_ap();
 			desiredMS = (int) (cmdInRpm_motor_ap * 1000 / cmdMax_ap);
-/////////// distance control
-			dist = sqrt(pow((set_pointPos[0]-currentPos[0]),2.0)+pow((set_pointPos[1]-currentPos[1]),2));
+			/////////////////
+			//distance control
+			/////////////////
+			dist = sqrt(
+					pow((set_pointPos[0] - currentPos[0]), 2.0)
+							+ pow((set_pointPos[1] - currentPos[1]), 2));
 			measured_linp = -dist;
-			compute_linp();
-			if (fabs(theta_set_point)>3){
-				desiredThrust = (int) (cmd_to_thrusters_linp * 1000 / cmdMax_linp);
-			}else{
+			if (fabs(error_ap) < 3) {
+				compute_linp();
+				desiredThrust = (int) (cmd_to_thrusters_linp);
+			} else {
 				desiredThrust = 0;
 			}
-
 			break;
 
 		case ATTITUDE_CONTROL_MODE_MANUAL:
+			Servo.write(telecommandData.servoAngle);
 			measured_ap = (double) sensorData.angleZ;
-			additionalAngle = (double) telecommandData.additionalAngle;
-////////////////
-// like this (right now) or with just adding angle directly in groundstation and then just execution (not implemented yet
-////////////////
-			turn(additionalAngle);
-			compute_ap();
-			desiredMS = (int) (cmdInRpm_motor_ap * 1000 / cmdMax_ap);
-////////////////
+//			PRINTF("before");
+			if (telecommandData.rotateDelta == 1) {
+				desiredMS = -1000;
+			} else {
+				if (telecommandData.rotateDelta == 0) {
+					desiredMS = 0;
+				} else {
+					if (telecommandData.rotateDelta == (-1)) {
+						desiredMS = 1000;
+					} else {
+						PRINTF(
+								"\nERROR in rotationDeltaInput from Groundstation");
+					}
+				}
+			}
+
+			//thruster are already set in the beginning while reading from telecommandDatabuffer
+
+			//control of Magnet
+			Magnet.setPins(magnet);
 
 			break;
 
 		case ATTITUDE_CONTROL_MODE_ANGULAR_SPEED:
+			Servo.write(1900);
 
 			///////////////////////////////////////////////////////////////////////////
 			// START OF ANGUAR VELOCITY CONTROR
@@ -180,14 +251,39 @@ void Mode2::run() {
 				// do nothing
 			} else {
 				measured_ap = (double) sensorData.angleZ / 100;
-				//				PRINTF("\nGyroZ/100 %f",measured_ap);
+				anglePositionRedefinition_Mode2();
 				compute_ap();
 				desiredMS = (int) (cmdInRpm_motor_ap * 1000 / cmdMax_ap);
-				//				PRINTF("\nINT_cal: %d", desiredMS);
+
 			}
 			break;
 
 		case ATTITUDE_CONTROL_MODE_DOCKING:
+			Servo.write(940);
+			Magnet.setPins(1);
+
+//			PRINTF("\nIR_ANGLE: %f",iRData.angle);
+//			PRINTF("\nIR_DISTANCE: %f",iRData.distance);
+//			PRINTF("\nIR_RANGE1: %d",iRData.range1);
+//			PRINTF("\nIR_RANGE2: %d",iRData.range2);
+
+			break;
+
+		case ATTITUDE_CONTROL_MODE_OBJECTRECOGNITION:
+			Servo.write(1900);
+			setpoint_av = 10;			//desired rotational speed in [deg/sec]
+			//functions ask how it should be done (MARTIN'S MISSION)
+
+			break;
+
+		case ATTITUDE_CONTROL_MODE_SEMIMANUAL:
+			Servo.write(1900);
+			measured_ap = (double) sensorData.angleZ;
+			additionalAngle = (double) telecommandData.rotateDelta;
+			turn(additionalAngle);
+			compute_ap();
+			desiredMS = (int) (cmdInRpm_motor_ap * 1000 / cmdMax_ap);
+////////////////
 
 			break;
 		}
@@ -195,11 +291,30 @@ void Mode2::run() {
 		// set the controlled m-speed and publish it
 		controlData.desiredThrusterValue = desiredThrust;
 		controlData.desiredRWSpeed = desiredMS;
+		controlData.controlledT1 = t1;
+		controlData.controlledT2 = t2;
+		controlData.controlledT3 = t3;
 		ControlDataTopic.publish(controlData);
 
 		suspendCallerUntil(NOW()+20*MILLISECONDS);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////
+//  FUNCTIONS FOR CONTROL
+/////////////////////////////////////////////////////////////////////////////////
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 //Control Code for vehicle angular speed with adjustable sample time, cmd limits and PID values
@@ -270,12 +385,16 @@ void Mode2::set_cmd_Limits_av(double Min_av, double Max_av) /*currently set to -
 //Control Code for vehicle ANGLE with adjustable sample time, cmd limits and PID values
 /////////////////////////////////////////////////////////////////////////////////
 
-void Mode2::compute_ap()  //function to be called in each sample time
+void Mode2::compute_ap() //function to be called in each sample time
 {
 	/*calculating different error components for P,I and D*/
 	error_ap = setpoint_ap - measured_ap; //proportional term
+	if (fabs(error_ap) > 180)
+		error_ap = error_ap + 360;
+	if (fabs(error_ap) > 360)
+		error_ap = error_ap - 720;
 
-	//Interlock to be made here taking error_ap value. If it is more than abs(1) deg, thrusters must be suspended//
+//Interlock to be made here taking error_ap value. If it is more than abs(1) deg, thrusters must be suspended//
 
 	I_term_ap += (ki_ap * error_ap); //integrating term
 	if (I_term_ap > cmdMax_ap)
@@ -343,7 +462,7 @@ void Mode2::turn(double angle) {
 	setpoint_ap = measured_ap + angle; //only single value for currentPos angle to be taken for measured, not a continuous function//
 }
 
-void Mode2::anglePositionRedefinition() {
+void Mode2::anglePositionRedefinition_Mode0() {
 	theta_set_point = atan2((set_pointPos[1] - currentPos[1]),
 			(set_pointPos[0] - currentPos[0])); //angle in range of -180 to 180 deg//
 	theta_set_point = theta_set_point * 180 / M_PI;
@@ -356,9 +475,6 @@ void Mode2::anglePositionRedefinition() {
 
 	if (270 > fabs(difference) > 90) {
 		setpoint_ap = theta_set_point + 180;
-	}
-	if (setpoint_ap > 360) {
-		setpoint_ap = setpoint_ap - 360; //ensuring setpoint_ap is less than 360 deg
 		t1 = 1;
 		t2 = 0;
 		t3 = 0; //ensuring delta is less than 90 deg//
@@ -368,13 +484,24 @@ void Mode2::anglePositionRedefinition() {
 		t2 = 1;
 		t3 = 1;
 	}
+	if (setpoint_ap > 360) {
+		setpoint_ap = setpoint_ap - 360; //ensuring setpoint_ap is less than 360 deg
+	}
+}
+
+void Mode2::anglePositionRedefinition_Mode2() {
+
+
+		setpoint_ap = theta_set_point;
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 //Control Code for vehicle POSITION(DISTANCE) with adjustable sample time, cmd limits and PID values
 /////////////////////////////////////////////////////////////////////////////////
 
-void Mode2::compute_linp()  //function to be called in each sample time
+void Mode2::compute_linp() //function to be called in each sample time
 {
 	/*calculating different error components for P,I and D*/
 	error_linp = setpoint_linp - measured_linp; //proportional term
