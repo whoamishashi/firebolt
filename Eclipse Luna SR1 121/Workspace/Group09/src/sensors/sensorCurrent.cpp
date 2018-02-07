@@ -35,9 +35,9 @@ Surveillance sensorCurrent;
 
 //=======Battery stuff======
 #define ADDRESS 0b01000000
-HAL_I2C HAL_Voltage(I2C_IDX2);
-
-
+HAL_I2C HAL_Voltage(I2C_IDX1);
+uint8_t testbuffer[2];
+uint16_t config = 0;
 CommBuffer<SurveillanceData> SurveillanceDataBuffer1;
 Subscriber SurveillanceDataSubscriber1(SurveillanceDataTopic, SurveillanceDataBuffer1);
 
@@ -49,7 +49,7 @@ void Surveillance::init(){
 	suspendCallerUntil(NOW()+(10*MILLISECONDS));
 	//Battery init
 	HAL_Voltage.init(400000);
-	uint16_t config = 0;
+
 	config = INA219_CONFIG_BVOLTAGERANGE_32V |
 	INA219_CONFIG_GAIN_8_320MV |
 	INA219_CONFIG_BADCRES_12BIT |
@@ -59,23 +59,33 @@ void Surveillance::init(){
 	txBuf[0] = CONFIG_R;
 	txBuf[1] = (config >> 8) & 0xFF;
 	txBuf[2] = config & 0xFF;
+
 	HAL_Voltage.write(0x40, txBuf, 3);
+
+	HAL_Voltage.read(0x40,testbuffer,2);
 
 }
 
 void Surveillance::run(){
 	init();
 	surveillanceData.asdf =-1100;
+	PRINTF("qewr %d", config);
+	uint16_t testbuffer2 = (testbuffer[0]<<8 | testbuffer[1]);
+	PRINTF("asdf %d", testbuffer2);
+
 	while(1){
 		//=========================Battery stuff===========================
 		//Voltage
 		uint8_t read[2];
 		uint8_t txBuf[1];
 		txBuf[0] = V_BUS_R;
-		HAL_Voltage.writeRead(0x40, txBuf, 1, read, 2);
+		HAL_Voltage.write(0x40, txBuf, 1);
+		HAL_Voltage.read(0x40, read, 2);
+//		HAL_Voltage.writeRead(0x40, txBuf, 1, read, 2);
 		uint16_t batteryVoltage = (uint16_t) ((read[0] << 8) | read[1]);
 		batteryVoltage = (int16_t)((batteryVoltage >> 3) * 4);
-		surveillanceData.batteryVoltage = batteryVoltage;
+		float batteryvoltageTemp = (float) batteryVoltage;
+		surveillanceData.batteryVoltage = (float) batteryvoltageTemp;
 		//Current
 		uint16_t value = 0x1000;				// 1A
 		uint8_t tx[3];
@@ -91,7 +101,7 @@ void Surveillance::run(){
 
 
 		if (surveillanceData.asdf<1000){
-			surveillanceData.asdf+=100;
+			surveillanceData.asdf+=10;
 		}else{
 			surveillanceData.asdf = -1000;
 		}
@@ -99,6 +109,24 @@ void Surveillance::run(){
 		//Publish the value
 		SurveillanceDataTopic.publish(surveillanceData);
 
-		suspendCallerUntil(NOW()+10000*MILLISECONDS);
+		suspendCallerUntil(NOW()+100*MILLISECONDS);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//void Surveillance::readout(HAL_GPIO &pin, uint8_t *targetregister, int16_t *dataarray, int numberOfBits) {
+//	pin.setPins(0);
+//	HAL_Voltage.write(targetregister, 1);
+//	HAL_Voltage.read((uint8_t*) dataarray, numberOfBits);
+//	pin.setPins(1);
+//}
