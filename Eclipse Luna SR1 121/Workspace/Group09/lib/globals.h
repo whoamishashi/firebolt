@@ -17,6 +17,7 @@
 #include <iterator>
 #include "structs.h"
 #include "topics.h"
+#include <hal.h>
 
 using namespace std;
 
@@ -47,6 +48,7 @@ extern HAL_UART uart_stdout;
 #define BT2UART uart_stdout
 
 extern HAL_UART RSPUART;
+extern HAL_I2C i2c2_bus;
 
 class Globals: public Thread {
 private:

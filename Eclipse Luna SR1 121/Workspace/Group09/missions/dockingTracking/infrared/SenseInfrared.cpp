@@ -10,6 +10,7 @@
 ////#include "CommInterfaces.h"
 //#include "../../../lib/structs.h"
 //
+//
 //SenseInfrared senseInfrared(i2c2_bus);
 //
 //SenseInfrared::SenseInfrared(HAL_I2C &i2c, GPIO_PIN enable_pin1, GPIO_PIN enable_pin2, float sensorDistance)

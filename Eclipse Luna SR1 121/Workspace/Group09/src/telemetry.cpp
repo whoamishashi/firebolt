@@ -23,14 +23,20 @@ using std::string;
 
 Telemetry telemetry;
 
-CommBuffer<SensorData> SensorDataBuffer;
-Subscriber SensorDataSubscriber(SensorDataTopic, SensorDataBuffer);
+//CommBuffer<GlobalsData> GlobalsDataBuffer;
+//Subscriber GlobalsDataSubscriber(GlobalsDataTopic, GlobalsDataBuffer);
 
-CommBuffer<GlobalsData> GlobalsDataBuffer;
-Subscriber GlobalsDataSubscriber(GlobalsDataTopic, GlobalsDataBuffer);
+CommBuffer<IRData> IRDataBuffer;
+Subscriber IRDataSubscriber(IRDataTopic, IRDataBuffer);
 
-CommBuffer<ActuatorData> ActuatorDataBuffer;
-Subscriber ActuatorDataSubscriber(ActuatorDataTopic, ActuatorDataBuffer);
+CommBuffer<ObjectRecognitionData> ObjectRecognitionDataBuffer;
+Subscriber ObjectRecognitionDataSubscriber(ObjectRecognitionDataTopic, ObjectRecognitionDataBuffer);
+
+CommBuffer<StarTrackerData> StarTrackerDataBuffer;
+Subscriber StarTrackerDataSubscriber(StarTrackerDataTopic, StarTrackerDataBuffer);
+
+CommBuffer<RadioData> RadioDataBuffer;
+Subscriber RadioDataSubscriber(RadioDataTopic, RadioDataBuffer);
 
 CommBuffer<MotorData> MotorDataBuffer;
 Subscriber MotorDataSubscriber(MotorDataTopic, MotorDataBuffer);
@@ -38,13 +44,14 @@ Subscriber MotorDataSubscriber(MotorDataTopic, MotorDataBuffer);
 CommBuffer<SurveillanceData> SurveillanceDataBuffer;
 Subscriber SurveillanceDataSubscriber(SurveillanceDataTopic, SurveillanceDataBuffer);
 
+CommBuffer<SensorData> SensorDataBuffer;
+Subscriber SensorDataSubscriber(SensorDataTopic, SensorDataBuffer);
+
+CommBuffer<FusedData> FusedDataBuffer;
+Subscriber FusedDataSubscriber(FusedDataTopic, FusedDataBuffer);
+
 CommBuffer<ControlData> ControlDataBuffer;
 Subscriber ControlDataSubscriber(ControlDataTopic, ControlDataBuffer);
-
-CommBuffer<IRData> IRDataBuffer;
-Subscriber IRDataSubscriber(IRDataTopic, IRDataBuffer);
-
-
 
 Telemetry::Telemetry() {
 }
@@ -56,17 +63,19 @@ void Telemetry::run() {
 	char string[50];
 
 	while (1) {
-		PRINTF(" ");
-//		PRINTF("\ninside run telemetry");
+		PRINTF("_____________________________");
 
-		GlobalsData globalsData;
-		GlobalsDataBuffer.get(globalsData);
+		IRData irData;
+		IRDataBuffer.get(irData);
 
-		SensorData sensorData;
-		SensorDataBuffer.get(sensorData);
+		ObjectRecognitionData objectRecognitionData;
+		ObjectRecognitionDataBuffer.get(objectRecognitionData);
 
-		ActuatorData actuatorData;
-		ActuatorDataBuffer.get(actuatorData);
+		StarTrackerData starTrackerData;
+		StarTrackerDataBuffer.get(starTrackerData);
+
+		RadioData radioData;
+		RadioDataBuffer.get(radioData);
 
 		MotorData motorData;
 		MotorDataBuffer.get(motorData);
@@ -74,47 +83,54 @@ void Telemetry::run() {
 		SurveillanceData surveillanceData;
 		SurveillanceDataBuffer.get(surveillanceData);
 
+		SensorData sensorData;
+		SensorDataBuffer.get(sensorData);
+
+		FusedData fusedData;
+		FusedDataBuffer.get(fusedData);
+
 		ControlData controlData;
 		ControlDataBuffer.get(controlData);
 
-		IRData iRData;
-		IRDataBuffer.get(iRData);
-
-
 //		BT2UART.write(string, strlen(string));
 
-		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX, sensorData.gyroY, sensorData.gyroZ);
-		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX, sensorData.accY, sensorData.accZ);
-		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX, sensorData.magY, sensorData.magZ);
-		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
-		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
+		PRINTF("\nTM:IRData:range1:%f", irData.range1);
+		PRINTF("\nTM:IRData:range2:%f", irData.range2);
+		PRINTF("\nTM:IRData:distance:%f", irData.distance);
+		PRINTF("\nTM:IRData:angle:%f", irData.angle);
 
-		PRINTF("\nTM: RPM: sensorData: crpm %f", motorData.controlled_m_speed);
-		PRINTF("\nTM: RPM: sensorData: rpmi %d\n\n", motorData.sensorMotorSpeed);
-//IRData (Distance-Sensor)
-		PRINTF("\n\nTM: IRD: IRData: Distance1: %f", iRData.range1);
-		PRINTF("\nTM: IRD: IRData: Distance2: %f", iRData.range2);
-		PRINTF("\nTM: IRD: IRData: Average Distance: %f", iRData.distance);
-		PRINTF("\nTM: IRD: IRData: Angle: %f", iRData.angle);
-//Data for Testing purposes
-//		PRINTF("\nTM: BAT: sensorData: wanted: %d", surveillanceData.asdf);
+		PRINTF("\nTM:ObjectRecognitionData:alpha:%f", objectRecognitionData.alpha);
+		PRINTF("\nTM:ObjectRecognitionData:G0:%f", objectRecognitionData.G0);
+		PRINTF("\nTM:ObjectRecognitionData:g0:%f", objectRecognitionData.g0);
+		PRINTF("\nTM:ObjectRecognitionData:trusted:%d", objectRecognitionData.trusted);
 
-/////////////// for NEHA LOGGING ///////////////////////////
-//		int64_t _now =NOW();
-//		PRINTF("%llu,", _now);
-//		PRINTF("%d,", sensorData.gyroZ);
-//		PRINTF("%d,", sensorData.accX);
-//		PRINTF("angular acceleration %d\n", sensorData.accY);
-////////////////////////////////////////////////////////////
+		PRINTF("\nTM:StarTrackerData:x:%f", starTrackerData.x);
+		PRINTF("\nTM:StarTrackerData:y:%f", starTrackerData.y);
+		PRINTF("\nTM:StarTrackerData:angle:%f", starTrackerData.angle);
 
+		PRINTF("\nTM:RadioData:x:%f", radioData.x);
+		PRINTF("\nTM:RadioData:y:%f", radioData.y);
 
-		PRINTF("\nTM: CON: controlData: drws %d", controlData.desiredRWSpeed);
-//BatteryData:
-		PRINTF("\nTM: BAT: sensorData: volt: %f", surveillanceData.batteryVoltage);
-		PRINTF("\nTM: BAT: sensorData: curr: %f", surveillanceData.batteryCurrent);
-//		PRINTF("\nTM: %s", globalsData.status);
+		PRINTF("\nTM:MotorData:sensorMotorSpeed:%ld", motorData.sensorMotorSpeed);
 
-//		PRINTF("\nTM: %s", globalsData.status);
+		PRINTF("\nTM:SurveillanceData:batteryVoltage:%f", surveillanceData.batteryVoltage);
+		PRINTF("\nTM:SurveillanceData:batteryCurrent:%f", surveillanceData.batteryCurrent);
+
+		PRINTF("\nTM:SensorData:gyroX:%d", sensorData.gyroX);
+		PRINTF("\nTM:SensorData:gyroY:%d", sensorData.gyroY);
+		PRINTF("\nTM:SensorData:gyroZ:%d", sensorData.gyroZ);
+		PRINTF("\nTM:SensorData:accX:%d", sensorData.accX);
+		PRINTF("\nTM:SensorData:accY:%d", sensorData.accY);
+		PRINTF("\nTM:SensorData:accZ:%d", sensorData.accZ);
+		PRINTF("\nTM:SensorData:magX:%d", sensorData.magX);
+		PRINTF("\nTM:SensorData:magY:%d", sensorData.magY);
+		PRINTF("\nTM:SensorData:magZ:%d", sensorData.magZ);
+		PRINTF("\nTM:SensorData:temperature:%d", sensorData.temperature);
+		PRINTF("\nTM:SensorData:angleZ:%d", sensorData.angleZ);
+
+		PRINTF("\nTM:FusedData:x:%f", fusedData.x);
+		PRINTF("\nTM:FusedData:y:%f", fusedData.y);
+		PRINTF("\nTM:FusedData:angle:%ld", fusedData.angle);
 
 		suspendCallerUntil(NOW()+500*MILLISECONDS);
 	}

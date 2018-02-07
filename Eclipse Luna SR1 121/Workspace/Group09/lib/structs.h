@@ -40,32 +40,34 @@ enum AttitudeControlMode
 };
 
 struct TelecommandData {
-
 	std::string telecommand;				//{CMD}
 
 	int mode;								//{-1:standby,
-											//	0:automatic (starTracker, radioPositioning),
+											//	0:automatic (starTracker),
 											//	1:manual,
 											//	2:angVelang ,
 											//	3:dockingTracking,
 											//	4:objectRecognition}
+											//	5:radioPositioning
 
 	//manual
 	int t1;									//{0:off,1:on}
 	int t2;									//{0:off,1:on}
 	int t3;									//{0:off,1:on}
 	int rotateDelta;  						//{-1:anticw,0:doNothing,1:cw}
-	int rwRotationSpeed;						//wheel[-1000dps, 1000dps]
+	int rwRotationSpeed;					//wheel[-1000dps, 1000dps]
 	int servoAngle;							//{940:down, 1900:straight}
 	int activateMagnet;						//{0:inactive, 1:active}
+	int rotate180;  						//{0:doNothing,1:rotate}
 
 	//automatic
 	double targetPosition_x;				//{[0m,2m]:valid, 9999:invalid}
 	double targetPosition_y;				//[0m,2m]
+
+	//semi-automatic
 	int desiredAngle;						//[0deg, 360deg]
 	int desiredAngularVel;					//satellite[-180dps, 180dps]
-	int rotate180;  						//{0:doNothing,1:rotate}
-};
+};//GS
 
 struct GlobalsData {
 	char status[50];
@@ -76,16 +78,25 @@ struct IRData {
 	float range2;
 	float distance;
 	float angle;
-};
+};//GS
 
 struct ObjectRecognitionData {
-};
+	float alpha;	//angle from x axis anti-cw
+	float G0;		//
+	float g0;		//
+	bool trusted;	//found or not
+};//GS
 
 struct StarTrackerData {
-};
+	float x;
+	float y;
+	float angle;
+};//GS
 
 struct RadioData {
-};
+	float x;
+	float y;
+};//GS
 
 struct __attribute__((packed)) DpCommand {
 	uint8_t sync;
@@ -96,25 +107,22 @@ struct __attribute__((packed)) DpCommand {
 
 
 struct MotorData{
-	int32_t sensorMotorSpeed;
+	int32_t sensorMotorSpeed;		//GS
 	double 	controlled_m_speed;
-
 };
 
 struct SurveillanceData {
-	float 	batteryVoltage;
-	float 	batteryCurrent;
+	float 	batteryVoltage;			//GS
+	float 	batteryCurrent;			//GS
 	int 	asdf;
 };
-
-
 
 struct ActuatorData {
 	//Actual values
 	int mode;
-	bool dir;   // {1: anticlock, 0:cw}
+	bool dir;  			// {1: anticlock, 0:cw}
 	float m_speed;
-	bool t1, t2, t3;  // {0:off, 1:on}
+	bool t1, t2, t3; 	// {0:off, 1:on}
 };
 
 struct SensorData {
@@ -124,7 +132,7 @@ struct SensorData {
 	int16_t magX, magY, magZ;
 	int16_t temperature;
 	int32_t angleZ;
-};
+};//GS
 
 struct Modes {
 	int mode;
@@ -139,14 +147,9 @@ struct ControlData {	//this is for the upper Controllers to give the values to t
 };
 
 struct FusedData {
-	double fusedPosition[2];
-	double fusedAngle;
-};
-struct TelecommandMeasurements {  //to control topic
-  float st_x;
-  float st_y;
-  float st_angle;
-};
-
+	double x;
+	double y;
+	double angle;
+};//GS
 
 #endif /* LIB_STRUCTS_H_ */
