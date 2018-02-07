@@ -62,7 +62,7 @@ SensorIMU::SensorIMU() {
 void SensorIMU::GyroCalibration() {	//Tested and working
 	int32_t offset[3] = { 0, 0, 0 };
 //	SensorDataBuffer1.get(imuData);
-	suspendCallerUntil(NOW()+1000*MILLISECONDS);
+	suspendCallerUntil(NOW()+100*MILLISECONDS);
 
 	for (int j = 0; j < 1000; j++) {
 		readout(CS_G, IMU_G_DATA, temp_GAM, 6);
@@ -73,12 +73,12 @@ void SensorIMU::GyroCalibration() {	//Tested and working
 		for (int i = 0; i < 3; i++) {
 			temp_GAM[i] *= CALI_G; 	// now in [(1/100)*Deg/sec]=  10*[mDeg/sec]
 			offset[i] = offset[i] + (int32_t) temp_GAM[i];
-			//PRINTF("%d    ", temp_GAM[i]);
+//			PRINTF("%d    ", temp_GAM[i]);
 			temp_GAM[i] = 0;
 		}
 		//PRINTF("\n");
 		//suspendCallerUntil(NOW()+200*MILLISECONDS);
-		suspendCallerUntil(NOW()+5*MILLISECONDS);
+		suspendCallerUntil(NOW()+1*MILLISECONDS);
 
 	}
 	//PRINTF("Offset:\nXd:%d\nYd:%d\nZd:%d\n", offset[0], offset[1], offset[2]);
@@ -87,7 +87,7 @@ void SensorIMU::GyroCalibration() {	//Tested and working
 		offset[i] /= 1000;
 	}
 	//print offsets in console
-//	PRINTF("Offset:\nXd:%d\nYd:%d\nZd:%d\n", offset[0], offset[1], offset[2]);
+	PRINTF("Offset:\nXd:%d\nYd:%d\nZd:%d\n", offset[0], offset[1], offset[2]);
 
 	//save and publish the offsets
 	offGyroX = offset[0];
@@ -103,7 +103,7 @@ void SensorIMU::MagCalibration() {
 
 void SensorIMU::AccCalibration() {		//Tested and working
 	int32_t offset[3] = { 0, 0, 0 };
-	suspendCallerUntil(NOW()+1000*MILLISECONDS);
+	suspendCallerUntil(NOW()+100*MILLISECONDS);
 
 	offset[0] = 0;
 	offset[1] = 0;
@@ -114,9 +114,11 @@ void SensorIMU::AccCalibration() {		//Tested and working
 		for (int i = 0; i < 3; i++) {
 			temp_GAM[i] *= CALI_A; 			// now in [G/100]
 			offset[i] = offset[i] + (int32_t) temp_GAM[i];
-			//PRINTF("%d    ", temp_GAM[i]);
+//			PRINTF("accCali%d    ", temp_GAM[i]);
 		}
-		for (int i = 0; i < 3; i++) {temp_GAM[i] = 0;}
+		for (int i = 0; i < 3; i++) {
+			temp_GAM[i] = 0;
+		}
 
 		suspendCallerUntil(NOW()+1*MILLISECONDS);
 	}
@@ -144,7 +146,7 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 	int64_t deltaAngle = 0;
 	int32_t sumZ = 0;
 	static int64_t past = NOW();
-	for (int j = 0; j < 1; j++) {
+	for (int j = 0; j < 3; j++) {
 		readout(CS_G, IMU_G_DATA, temp_GAM, 6);
 		for (int i = 0; i < 3; i++) {
 			temp_GAM[i] *= CALI_G; 			// now in [10*mDeg/sec]
@@ -152,21 +154,21 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 		}
 		sumZ = sumZ + (temp_GAM[2] - offGyroZ);
 	}
-	sumZ /= 1;
+	sumZ /= 3;
 
 	//CARE ABOUT THE FACT THAT deltaAngle, past and NOW() are int64_t!!!
 	int64_t now = NOW();
-	deltaAngle = sumZ * (now-past);
-	past = now;// in [10*mDeg*nsec/sec]
-	//PRINTF("%lld\n",deltaAngle);
+	deltaAngle = sumZ * (now - past);
+	past = now;			// in [10*mDeg*nsec/sec]
+//	PRINTF("%lld\n",deltaAngle);
 	deltaAngle /= 1000000000.0f;
-	//PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
-	//suspendCallerUntil(NOW()+500*MILLISECONDS);
+//	PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
+	suspendCallerUntil(NOW()+100*NANOSECONDS);
 	_angleZ += (int32_t) deltaAngle;
 	if (_angleZ >= 36000) {
 		_angleZ -= 36000;
 	}
-	if (_angleZ <= 0) {
+	if (_angleZ < 0) {
 		_angleZ += 36000;
 	}
 
@@ -181,6 +183,68 @@ void SensorIMU::readout(HAL_GPIO &pin, uint8_t *targetregister,
 	IMU.write(targetregister, 1);
 	IMU.read((uint8_t*) dataarray, numberOfBits);
 	pin.setPins(1);
+}
+
+void SensorIMU::acc2pos() {
+	int64_t deltaVel[3] = { 0, 0, 0 };
+	int64_t deltaPos[3] = { 0, 0, 0 };
+	int32_t sum[3] = { 0, 0, 0 };
+	int maxj = 4;
+	static int64_t past_2vel = NOW();
+	static int64_t past_2pos = NOW();
+
+	for (int k = 0; k < 3; k++) {
+		for (int h=0; h<3; h++){
+			sum[h]= 0;
+		}
+		for (int j = 0; j < maxj; j++) {
+			readout(CS_XM, IMU_A_DATA, temp_GAM, 6);
+
+			for (int i = 0; i < 3; i++) {
+//				PRINTF("asdf %d %d...", i, temp_GAM[i]);
+				temp_GAM[i] *= CALI_A;
+//				PRINTF("temp%d: %d\n",temp_GAM[i]);
+
+			}			// now in [1/100 N]
+
+			sum[0] = sum[0] + (temp_GAM[0] - offAccX);
+			sum[1] = sum[1] + (temp_GAM[1] - offAccY);
+			sum[2] = sum[2] + (temp_GAM[2] - offAccZ);
+		}
+//		PRINTF("\nAccSum:");
+
+		//CARE ABOUT THE FACT THAT deltaAngle, past and NOW() are int64_t!!!
+		int64_t now_2vel = NOW();
+		for (int i = 0; i < 3; i++) {
+			sum[i] =(int) (sum[i]/ maxj);
+//			PRINTF("%d: %lld",i, sum[i]);
+
+			deltaVel[i] = sum[i] * (now_2vel - past_2vel);
+//			PRINTF("\nVelBig%d: %lld",i, deltaVel[i]);
+			deltaVel[i] /= 1000000000;
+//			PRINTF("\nVelSmall%d: %lld",i, deltaVel[i]);
+			_vel[i] +=  deltaVel[i];
+//			PRINTF("\n_vel: %lld,%lld,%lld", _vel[0], _vel[1], _vel[2]);
+
+
+		}
+		past_2vel = now_2vel;			// in [10*mDeg*nsec/sec]
+		//PRINTF("%lld\n",deltaAngle);
+
+		//PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
+		suspendCallerUntil(NOW()+100*NANOSECONDS);
+		int64_t now_2pos = NOW();
+		for (int i = 0; i < 3; i++) {
+			deltaPos[i] = _vel[i] * (now_2pos - past_2pos);
+//			PRINTF("\nVPosBig%d: %lld",i, deltaPos[i]);
+			deltaPos[i] /= 1000000000;
+//			PRINTF("\nPosSmall%d: %lld",i, deltaPos[i]);
+			_pos[i] +=  deltaPos[i];
+		}
+//		PRINTF("\n_pos: %lld,%lld,%lld", _pos[0], _pos[1], _pos[2]);
+		past_2pos = NOW();
+	}
+
 }
 
 void SensorIMU::ImuRegSetup() {	// for LSM9DS0
@@ -226,7 +290,7 @@ void SensorIMU::ImuRegSetup() {	// for LSM9DS0
 
 void SensorIMU::init() {
 
-	BlueLED.init(true, 1, 0);
+	//BlueLED.init(true, 1, 0);
 	BlueButton.init(false, 1, 0);
 
 	// initialization of the HAL objects should be called one time only in the project
@@ -242,16 +306,16 @@ void SensorIMU::run() {
 	ImuRegSetup();
 	bool calibrationOver = false;
 
-	if (BlueButton.readPins()==1) {
-		//SensorCalibration();
-		GyroCalibration();
-		//MagCalibration();
-		AccCalibration();
+//	if (calibrationOver != 1) {
+	//SensorCalibration();
+	GyroCalibration();
+	//MagCalibration();
+	AccCalibration();
 //			AngleGyro();
-		calibrationOver = true;
+	calibrationOver = true;
 //			PRINTF("ohoh");
 
-	}
+//	}
 
 	while (1) {
 //commented and put before while loop because BlueButton.readPins() now always gives 1 --> why??
@@ -278,7 +342,7 @@ void SensorIMU::run() {
 			imuData.gyroY = temp_GAM[1] - offGyroY;
 			imuData.gyroZ = temp_GAM[2] - offGyroZ;
 
-//		PRINTF("%d,",temp_GAM[0]);
+//		PRINTF("gyro%d,",temp_GAM[0]);
 //		PRINTF("%d,",temp_GAM[1]);
 //		PRINTF("%d\n",temp_GAM[2]);
 //		suspendCallerUntil(NOW()+500*MILLISECONDS);
@@ -299,7 +363,8 @@ void SensorIMU::run() {
 			imuData.accY = temp_GAM[1] - offAccY;
 			imuData.accZ = temp_GAM[2] - offAccZ;
 
-//		PRINTF("%d,",temp_GAM[0]);
+			acc2pos();
+//		PRINTF("acc%d,",temp_GAM[0]);
 //		PRINTF("%d,",temp_GAM[1]);
 //		PRINTF("%d\n",temp_GAM[2]);
 //		suspendCallerUntil(NOW()+500*MILLISECONDS);
@@ -325,7 +390,7 @@ void SensorIMU::run() {
 			imuData.magX = temp_GAM[0];
 			imuData.magY = temp_GAM[1];
 			imuData.magZ = temp_GAM[2];
-//		PRINTF("%d,",temp_GAM[0]);
+//		PRINTF("mag%d,",temp_GAM[0]);
 //		PRINTF("%d,",temp_GAM[1]);
 //		PRINTF("%d\n",temp_GAM[2]);
 //		suspendCallerUntil(NOW()+500*MILLISECONDS);
@@ -333,7 +398,7 @@ void SensorIMU::run() {
 			// read LSM9DS0 (IMU) Temperature
 			readout(CS_XM, IMU_T_DATA, temp_T, 2);
 			temp_T[0] = temp_T[0] / CALI_T;
-//		PRINTF("%d\n",temp_T[0]);
+//		PRINTF("temp%d\n",temp_T[0]);
 			imuData.temperature = temp_T[0] + 18;
 //		suspendCallerUntil(NOW()+10*MILLISECONDS);
 
@@ -343,7 +408,7 @@ void SensorIMU::run() {
 
 			SensorDataTopic.publish(imuData);
 		}
-		suspendCallerUntil(NOW()+10000*NANOSECONDS);
+		suspendCallerUntil(NOW()+5*MILLISECONDS);
 
 	}
 }
