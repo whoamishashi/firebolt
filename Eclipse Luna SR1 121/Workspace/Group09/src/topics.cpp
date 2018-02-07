@@ -6,7 +6,7 @@
  */
 
 #include "../lib/topics.h"
-
+Topic<TelecommandData>TelecommandDataTopic(1,"Telecommand Data");
 Topic<GlobalsData> GlobalsDataTopic(2, "Globals Data");
 Topic<SensorData> SensorDataTopic(3, "Sensor Data");
 Topic<ActuatorData> ActuatorDataTopic(4, "Actuator Data");
