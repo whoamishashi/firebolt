@@ -41,6 +41,9 @@ Subscriber SurveillanceDataSubscriber(SurveillanceDataTopic, SurveillanceDataBuf
 CommBuffer<ControlData> ControlDataBuffer;
 Subscriber ControlDataSubscriber(ControlDataTopic, ControlDataBuffer);
 
+CommBuffer<IRData> IRDataBuffer;
+Subscriber IRDataSubscriber(IRDataTopic, IRDataBuffer);
+
 
 
 Telemetry::Telemetry() {
@@ -74,21 +77,28 @@ void Telemetry::run() {
 		ControlData controlData;
 		ControlDataBuffer.get(controlData);
 
+		IRData iRData;
+		IRDataBuffer.get(iRData);
+
 
 //		BT2UART.write(string, strlen(string));
 
 //		PRINTF("\nTM: IMU: sensorData: gyro: %d, %d, %d", sensorData.gyroX, sensorData.gyroY, sensorData.gyroZ);
 //		PRINTF("\nTM: IMU: sensorData: acce: %d, %d, %d", sensorData.accX, sensorData.accY, sensorData.accZ);
 //		PRINTF("\nTM: IMU: sensorData: magn: %d, %d, %d", sensorData.magX, sensorData.magY, sensorData.magZ);
-		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
+//		PRINTF("\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
 //		PRINTF("\nTM: IMU: sensorData: temp: %d", sensorData.temperature);
 
 //		PRINTF("\nTM: RPM: sensorData: crpm %f", motorData.controlled_m_speed);
 //		PRINTF("\nTM: RPM: sensorData: rpmi %d\n\n", motorData.sensorMotorSpeed);
-
-//		PRINTF("\nTM: IMU: sensorData: gyro: %d", sensorData.gyroZ/100);
-
+//IRData (Distance-Sensor)
+//		PRINTF("\n\nTM: IRD: IRData: Distance1: %f", iRData.range1);
+//		PRINTF("\nTM: IRD: IRData: Distance2: %f", iRData.range2);
+//		PRINTF("\nTM: IRD: IRData: Average Distance: %f", iRData.distance);
+//		PRINTF("\nTM: IRD: IRData: Angle: %f", iRData.angle);
+//Data for Testing purposes
 //		PRINTF("\nTM: BAT: sensorData: wanted: %d", surveillanceData.asdf);
+
 /////////////// for NEHA LOGGING ///////////////////////////
 //		int64_t _now =NOW();
 //		PRINTF("%llu,", _now);
@@ -100,14 +110,14 @@ void Telemetry::run() {
 //		PRINTF("\n\nTM: IMU: sensorData: cmps: %d", sensorData.angleZ);
 
 //		PRINTF("\nTM: CON: controlData: drws %d", controlData.desiredRWSpeed);
-
-//		PRINTF("\nTM: BAT: sensorData: volt: %f", surveillanceData.batteryVoltage);
-//		PRINTF("\nTM: BAT: sensorData: curr: %f", surveillanceData.batteryCurrent);
+//BatteryData:
+		PRINTF("\nTM: BAT: sensorData: volt: %f", surveillanceData.batteryVoltage);
+		PRINTF("\nTM: BAT: sensorData: curr: %f", surveillanceData.batteryCurrent);
 //		PRINTF("\nTM: %s", globalsData.status);
 
 //		PRINTF("\nTM: %s", globalsData.status);
 
-		suspendCallerUntil(NOW()+100*MILLISECONDS);
+		suspendCallerUntil(NOW()+500*MILLISECONDS);
 	}
 }
 
