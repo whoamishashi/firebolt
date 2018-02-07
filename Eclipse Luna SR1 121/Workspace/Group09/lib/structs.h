@@ -148,10 +148,5 @@ struct TelecommandMeasurements {  //to control topic
   float st_angle;
 };
 
-struct IRData {
-	uint8_t range1, range2;
-	float distance, angle;
-};
-
 
 #endif /* LIB_STRUCTS_H_ */
