@@ -18,7 +18,7 @@ using std::string;
 
 RaspberryComm raspberryComm;
 
-RaspberryComm::RaspberryComm() {
+RaspberryComm::RaspberryComm() : Thread(){
 }
 
 void RaspberryComm::init() {
@@ -41,7 +41,7 @@ void RaspberryComm::run() {
 		RSPUART.suspendUntilDataReady();
 		RSPUART.read(&buffer, 1);
 
-		PRINTF("\ninside rspcom before switch");
+//		PRINTF("\ninside rspcom before switch");
 
 		switch (buffer) {
 		case '$':

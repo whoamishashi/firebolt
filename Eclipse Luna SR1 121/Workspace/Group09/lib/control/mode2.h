@@ -2,7 +2,7 @@
  * mode2.h
  *
  *  Created on: 27 Jan 2018
- *      Author: Felix Hessinger
+ *      Author: Felix Hessinger (Controller-logic and values done by Neha)
  */
 
 #ifndef LIB_CONTROL_MODE2_AV_H_
@@ -28,7 +28,6 @@ public:
 	SensorData sensorData;
 	FusedData fusedData;
 	TelecommandData telecommandData;
-	Modes modes2;
 	IRData iRData;
 	Mode2();
 	void init();

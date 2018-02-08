@@ -17,7 +17,6 @@ extern Topic<SensorData> SensorDataTopic;
 extern Topic<ActuatorData> ActuatorDataTopic;
 extern Topic<SurveillanceData> SurveillanceDataTopic;
 extern Topic<MotorData> MotorDataTopic;
-extern Topic<Modes> ModesTopic;
 extern Topic<ControlData> ControlDataTopic;
 extern Topic<FusedData> FusedDataTopic;
 extern Topic<TelecommandData> TelecommandDataTopic;

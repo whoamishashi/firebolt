@@ -68,6 +68,7 @@ private:
 
 public:
 	SensorData imuData;
+	StarTrackerData starTrackerData;
 	SensorIMU();
 	void init();
 	void run();

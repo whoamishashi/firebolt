@@ -31,6 +31,7 @@ enum Status {
 
 enum AttitudeControlMode
 {
+	ATTITUDE_CONTROL_MODE_STANDBY = -1,
 	ATTITUDE_CONTROL_MODE_AUTO = 0,
 	ATTITUDE_CONTROL_MODE_MANUAL = 1,
 	ATTITUDE_CONTROL_MODE_ANGULAR_SPEED = 2,
@@ -42,7 +43,7 @@ enum AttitudeControlMode
 struct TelecommandData {
 	std::string telecommand;				//{CMD}
 
-	int mode;								//{-1:standby,
+	int mode = -1;							//{-1:standby,
 											//	0:automatic (starTracker),
 											//	1:manual,
 											//	2:angVelang ,
@@ -134,9 +135,6 @@ struct SensorData {
 	int32_t angleZ;
 };//GS
 
-struct Modes {
-	int mode;
-};
 
 struct ControlData {	//this is for the upper Controllers to give the values to the sub-controller
 	int desiredRWSpeed;

@@ -20,7 +20,7 @@ double kd=0.0099070843796960;						//0.0099070843796960;
 
 double measured, cmdInV, setpoint;
 double I_term, last_measured;
-double SampleTime=0.001; //sample time in sec (1 ms)
+double SampleTime=0.01; //sample time in sec (10 ms)
 double cmdMax=9, cmdMin=-9;
 
 //	int16_t offGyroX, offGyroY, offGyroZ;
@@ -68,6 +68,8 @@ int16_t rpm;
 void ControlRW::run() {
 	init();
 	now = 0;
+	suspendCallerUntil(WAITINGTIME_UNTIL_START*SECONDS);
+
 
 	while(1){
 
@@ -76,7 +78,7 @@ void ControlRW::run() {
 
 		rpm = getRPM();
 
-		measured = (rpm*1000/5500);  // divided by 12000rpm times 1000 for write input (range 0 to 1000)(0to100%)
+		measured = (rpm*1000/MAX_RPM_RW_POSSIBLE);  // divided by 12000rpm times 1000 for write input (range 0 to 1000)(0to100%)
 //		("InputFromSensor: %f\n",input);
 	///////////////Closed loop (for now only open loop control)
 //		RWC_out = 0;
@@ -91,8 +93,7 @@ void ControlRW::run() {
 		motorData.controlled_m_speed = setpoint;
 		motorData.sensorMotorSpeed = rpm;
 		MotorDataTopic.publish(motorData);
-		suspendCallerUntil(NOW()+1*MILLISECONDS);
-
+		suspendCallerUntil(NOW()+10*MILLISECONDS);
 
 	}
 }

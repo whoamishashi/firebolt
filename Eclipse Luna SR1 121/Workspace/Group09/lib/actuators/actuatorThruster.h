@@ -10,12 +10,6 @@
 
 #include "rodos.h"
 #include "../structs.h"
-
-#include <string>
-#include <cstdlib>
-#include <sstream>
-#include <vector>
-#include <iterator>
 #include "../globals.h"
 #include "../topics.h"
 using namespace std;
@@ -29,7 +23,7 @@ public:
 	ActuatorThruster();
 	void init();
 	void run();
-//	vector<string> split(string str, char delimiter);
+
 };
 
 extern ActuatorThruster actuatorThruster;

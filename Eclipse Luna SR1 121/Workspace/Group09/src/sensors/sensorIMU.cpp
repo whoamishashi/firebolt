@@ -43,8 +43,16 @@ int16_t DATA_A[3];
 int16_t DATA_M[3];
 int16_t DATA_T[1];
 
+double oldStarTrackerDataX, oldStarTrackerDataY,oldStarTrackerAngle;
+
+
 CommBuffer<SensorData> SensorDataBuffer1;
 Subscriber SensorDataSubscriber1(SensorDataTopic, SensorDataBuffer1);
+
+CommBuffer<StarTrackerData> StarTrackerDataBuffer1;
+Subscriber StarTrackerDataSubscriber1(StarTrackerDataTopic, StarTrackerDataBuffer1);
+
+
 
 SensorIMU::SensorIMU() {
 	offGyroX = 0;
@@ -164,6 +172,9 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 	deltaAngle /= 1000000000.0f;
 //	PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
 	suspendCallerUntil(NOW()+100*NANOSECONDS);
+	if ((oldStarTrackerDataX != starTrackerData.x) || (oldStarTrackerDataY != starTrackerData.y) || (oldStarTrackerAngle != starTrackerData.angle)){
+		_angleZ = starTrackerData.angle;
+	}
 	_angleZ += (int32_t) deltaAngle;
 	if (_angleZ >= 36000) {
 		_angleZ -= 36000;
@@ -172,10 +183,51 @@ void SensorIMU::AngleGyro() { 			//Tested and working
 		_angleZ += 36000;
 	}
 
+	oldStarTrackerAngle = starTrackerData.angle;
+	oldStarTrackerDataX = starTrackerData.x;
+	oldStarTrackerDataY = starTrackerData.y;
+
 	//PRINTF("b %d\n",angle);
 	imuData.angleZ = _angleZ;
 //	SensorDataTopic.publish(imuData);
 }
+
+//TODO: BACKUP of AngleGyro()
+//void SensorIMU::AngleGyro() { 			//Tested and working
+//	//	SensorDataBuffer1.get(imuData);
+//		int64_t deltaAngle = 0;
+//		int32_t sumZ = 0;
+//		static int64_t past = NOW();
+//		for (int j = 0; j < 3; j++) {
+//			readout(CS_G, IMU_G_DATA, temp_GAM, 6);
+//			for (int i = 0; i < 3; i++) {
+//				temp_GAM[i] *= CALI_G; 			// now in [10*mDeg/sec]
+//				//PRINTF("temp %d\n",temp_GAM[2]);
+//			}
+//			sumZ = sumZ + (temp_GAM[2] - offGyroZ);
+//		}
+//		sumZ /= 3;
+//
+//		//CARE ABOUT THE FACT THAT deltaAngle, past and NOW() are int64_t!!!
+//		int64_t now = NOW();
+//		deltaAngle = sumZ * (now - past);
+//		past = now;			// in [10*mDeg*nsec/sec]
+//	//	PRINTF("%lld\n",deltaAngle);
+//		deltaAngle /= 1000000000.0f;
+//	//	PRINTF("a %lld\n",deltaAngle);						// in [10*mDeg]
+//		suspendCallerUntil(NOW()+100*NANOSECONDS);
+//		_angleZ += (int32_t) deltaAngle;
+//		if (_angleZ >= 36000) {
+//			_angleZ -= 36000;
+//		}
+//		if (_angleZ < 0) {
+//			_angleZ += 36000;
+//		}
+//
+//		//PRINTF("b %d\n",angle);
+//		imuData.angleZ = _angleZ;
+//	//	SensorDataTopic.publish(imuData);
+//	}
 
 void SensorIMU::readout(HAL_GPIO &pin, uint8_t *targetregister,
 		int16_t *dataarray, int numberOfBits) {

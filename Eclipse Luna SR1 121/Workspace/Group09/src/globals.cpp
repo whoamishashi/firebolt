@@ -29,6 +29,7 @@ void Globals::init() {
 	RedLED.init(true, 1, 0);
 	i2c2_bus.init(400000);
 	//BT2UART.init(921600);
+	RSPUART.init(115200);
 }
 
 void Globals::run() {

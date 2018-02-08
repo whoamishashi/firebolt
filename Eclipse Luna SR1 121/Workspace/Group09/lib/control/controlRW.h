@@ -19,6 +19,7 @@
 //#include <string>
 #include "math.h"
 #include "../topics.h"
+#include "../globals.h"
 #include "../structs.h"
 
 

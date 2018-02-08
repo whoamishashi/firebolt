@@ -83,10 +83,10 @@ void ActuatorRW::run() {
 		TelecommandData telecommandData;
 		ActuatorRW_TelecommandDataBuffer.get(telecommandData);
 //FOR MAKING PROOF VIDEO
-//		suspendCallerUntil(10*SECONDS);
-//		motorData.controlled_m_speed = 500;
-//		if(NOW()>(18*SECONDS)){motorData.controlled_m_speed = -500;}
-//		if(NOW()>(26*SECONDS)){motorData.controlled_m_speed = -999;}
+		suspendCallerUntil(10*SECONDS);
+		motorData.controlled_m_speed = 500;
+		if(NOW()>(18*SECONDS)){motorData.controlled_m_speed = -500;}
+		if(NOW()>(26*SECONDS)){motorData.controlled_m_speed = -999;}
 
 		speed = (int) (motorData.controlled_m_speed);
 

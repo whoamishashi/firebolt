@@ -148,14 +148,14 @@ void IRSensorArray::initializeSensors()
 	infrared1_status = -1;
 	infrared2_status = -1;
 
-	Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+	Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 
 	infrared2_enable.setPins(1);
-	Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+	Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 	int res = -1;
 
 	res = assignI2Caddress(INFRARED1_I2C_ADDR, INFRARED2_I2C_ADDR);
-	Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+	Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 
 	if (res < 0)
 		PRINTF_CONDITIONAL(INFRARED_PRINT_VERBOSITY, "Changing Infrared I2C address failed: %d\n", res);
@@ -166,7 +166,7 @@ void IRSensorArray::initializeSensors()
 	for(int i = 0; res < 0 && i < 10; i++)
 	{
 		res = initInfrared(INFRARED2_I2C_ADDR);
-		Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+		Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 	}
 
 	if (res < 0)
@@ -181,12 +181,12 @@ void IRSensorArray::initializeSensors()
 	}
 
 	infrared_enable.setPins(1);
-	Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+	Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 	res = -1;
 	for(int i = 0; res < 0 && i < 10; i++)
 	{
 		res = initInfrared(INFRARED1_I2C_ADDR);
-		Thread::suspendCallerUntil(NOW() + 10*MILLISECONDS);
+		Thread::suspendCallerUntil(NOW() + 20*MILLISECONDS);
 	}
 
 	if (res < 0)

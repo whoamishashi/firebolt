@@ -26,6 +26,9 @@ Telemetry telemetry;
 //CommBuffer<GlobalsData> GlobalsDataBuffer;
 //Subscriber GlobalsDataSubscriber(GlobalsDataTopic, GlobalsDataBuffer);
 
+CommBuffer<TelecommandData> TelecommandDataBuffer;
+Subscriber TelecommandDataSubscriber(TelecommandDataTopic,TelecommandDataBuffer);
+
 CommBuffer<IRData> IRDataBuffer;
 Subscriber IRDataSubscriber(IRDataTopic, IRDataBuffer);
 
@@ -92,6 +95,9 @@ void Telemetry::run() {
 		ControlData controlData;
 		ControlDataBuffer.get(controlData);
 
+		TelecommandData telecommandData;
+		TelecommandDataBuffer.get(telecommandData);
+
 //		BT2UART.write(string, strlen(string));
 
 		PRINTF("\nTM:IRData:range1:%f", irData.range1);
@@ -99,17 +105,17 @@ void Telemetry::run() {
 		PRINTF("\nTM:IRData:distance:%f", irData.distance);
 		PRINTF("\nTM:IRData:angle:%f", irData.angle);
 
-		PRINTF("\nTM:ObjectRecognitionData:alpha:%f", objectRecognitionData.alpha);
-		PRINTF("\nTM:ObjectRecognitionData:G0:%f", objectRecognitionData.G0);
-		PRINTF("\nTM:ObjectRecognitionData:g0:%f", objectRecognitionData.g0);
-		PRINTF("\nTM:ObjectRecognitionData:trusted:%d", objectRecognitionData.trusted);
+//		PRINTF("\nTM:ObjectRecognitionData:alpha:%f", objectRecognitionData.alpha);
+//		PRINTF("\nTM:ObjectRecognitionData:G0:%f", objectRecognitionData.G0);
+//		PRINTF("\nTM:ObjectRecognitionData:g0:%f", objectRecognitionData.g0);
+//		PRINTF("\nTM:ObjectRecognitionData:trusted:%d", objectRecognitionData.trusted);
 
-		PRINTF("\nTM:StarTrackerData:x:%f", starTrackerData.x);
-		PRINTF("\nTM:StarTrackerData:y:%f", starTrackerData.y);
-		PRINTF("\nTM:StarTrackerData:angle:%f", starTrackerData.angle);
-
-		PRINTF("\nTM:RadioData:x:%f", radioData.x);
-		PRINTF("\nTM:RadioData:y:%f", radioData.y);
+//		PRINTF("\nTM:StarTrackerData:x:%f", starTrackerData.x);
+//		PRINTF("\nTM:StarTrackerData:y:%f", starTrackerData.y);
+//		PRINTF("\nTM:StarTrackerData:angle:%f", starTrackerData.angle);
+//
+//		PRINTF("\nTM:RadioData:x:%f", radioData.x);
+//		PRINTF("\nTM:RadioData:y:%f", radioData.y);
 
 		PRINTF("\nTM:MotorData:sensorMotorSpeed:%ld", motorData.sensorMotorSpeed);
 
@@ -128,9 +134,11 @@ void Telemetry::run() {
 		PRINTF("\nTM:SensorData:temperature:%d", sensorData.temperature);
 		PRINTF("\nTM:SensorData:angleZ:%d", sensorData.angleZ);
 
-		PRINTF("\nTM:FusedData:x:%f", fusedData.x);
-		PRINTF("\nTM:FusedData:y:%f", fusedData.y);
-		PRINTF("\nTM:FusedData:angle:%ld", fusedData.angle);
+//		PRINTF("\nTM:FusedData:x:%f", fusedData.x);
+//		PRINTF("\nTM:FusedData:y:%f", fusedData.y);
+//		PRINTF("\nTM:FusedData:angle:%ld", fusedData.angle);
+
+//		PRINTF("Telecommand.mode = %d",telecommandData.mode);
 
 		suspendCallerUntil(NOW()+500*MILLISECONDS);
 	}

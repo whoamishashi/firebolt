@@ -59,7 +59,8 @@ using namespace std;
 #define HBRIDGEDB				GPIO_079
 #define HBRIDGE_TIMER_D			PWM_IDX15
 
-
+//Maximum Motor Speed of the ReactionWheel possible with particular board
+#define MAX_RPM_RW_POSSIBLE		7800
 
 
 namespace RODOS {
