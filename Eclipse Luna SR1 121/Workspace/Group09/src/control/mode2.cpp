@@ -32,7 +32,7 @@ int desiredMS = 0;
 //position(distance)-control
 double Kp_linp = 20; //0.0761445586673765;
 double Ki_linp = 0.0005; //0.000345918152371027;
-double Kd_linp = 178.92; //1.397986555697760;
+double Kd_linp = 178.92*0.06; //1.397986555697760;
 
 double error_linp, d_measured_linp;
 double measured_linp, cmd_to_thrusters_linp, setpoint_linp = 0; //measured vale to be calculated back to linear positions
@@ -154,14 +154,14 @@ void Mode2::run() {
 //		theta_set_point = -45;
 
 //FOR MAKING PROOF VIDEO
-		telecommandData.servoAngle=940;
+		telecommandData.servoAngle = 940;
 		magnet = 1;
-		if (NOW()>2*SECONDS){telecommandData.servoAngle=1900;}
-		if (NOW()>4*SECONDS){t1=1;}
-		if (NOW()>6*SECONDS){t2=1;t1=0;}
-		if (NOW()>8*SECONDS){t3=1;t2=0;}
-		if (NOW()>10*SECONDS){t3=0;}
-		if (NOW()>30*SECONDS){magnet=0;}
+		if (NOW()>2*SECONDS) {telecommandData.servoAngle=1900;}
+		if (NOW()>4*SECONDS) {t1=1;}
+		if (NOW()>6*SECONDS) {t2=1;t1=0;}
+		if (NOW()>8*SECONDS) {t3=1;t2=0;}
+		if (NOW()>10*SECONDS) {t3=0;}
+		if (NOW()>30*SECONDS) {magnet=0;}
 
 ///////////////////////////////////////////////////////////
 
@@ -170,8 +170,8 @@ void Mode2::run() {
 		switch (telecommandData.mode) {
 
 		case ATTITUDE_CONTROL_MODE_STANDBY:
-			t1=t2=t3=0;
-			desiredMS =0;
+			t1 = t2 = t3 = 0;
+			desiredMS = 0;
 			break;
 
 		case ATTITUDE_CONTROL_MODE_AUTO:
@@ -315,23 +315,22 @@ void Mode2::run() {
 			dock_angle_radians = iRData.angle;
 			dock_angle = dock_angle_radians * 180 / M_PI;
 
-			if (dock_angle > 3) {
-				if (NOW()-past_mode3>=1*SECONDS) {
-					turn(dock_angle);
-				}
+			if (fabs(dock_angle) > 3) {
+				turn(dock_angle/6);
+
 				compute_ap();
 				desiredMS = (int) (cmdInRpm_motor_ap * 1000 / cmdMax_ap);
 			} else {
 				break;
 			}
-			measured_linp = -dock_dist;
+			measured_linp = -dock_dist/1000;
 			compute_linp();
 			past_mode3 = NOW();
 
-			PRINTF("\nIR_ANGLE: %f", iRData.angle);
-			PRINTF("\nIR_DISTANCE: %f", iRData.distance);
-			PRINTF("\nIR_RANGE1: %d", iRData.range1);
-			PRINTF("\nIR_RANGE2: %d", iRData.range2);
+//			PRINTF("\nIR_ANGLE: %f", iRData.angle);
+//			PRINTF("\nIR_DISTANCE: %f", iRData.distance);
+//			PRINTF("\nIR_RANGE1: %d", iRData.range1);
+//			PRINTF("\nIR_RANGE2: %d", iRData.range2);
 
 			break;
 

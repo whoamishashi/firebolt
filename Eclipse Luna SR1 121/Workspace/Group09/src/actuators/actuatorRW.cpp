@@ -20,6 +20,8 @@ using namespace std;
 
 using std::string;
 HAL_GPIO HBRIDGE_EN(GPIO_066); /* declare HAL_GPIO for GPIO_066 = PE2 (HBRIDGE Power Enable pin) */
+HAL_GPIO LEDS_ARRAY(HBRIDGEBB); //enabling the pins for LEDs
+
 
 HAL_GPIO HBRIDGE_RW_A(HBRIDGECA);
 HAL_GPIO HBRIDGE_RW_B(HBRIDGECB);
@@ -67,6 +69,7 @@ void ActuatorRW::init() {
 	HBRIDGE_EN.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 	HBRIDGE_RW_A.init(true, 1, 1); /* initialization of the HAL object should be called one time only in the project*/
 	HBRIDGE_RW_B.init(true, 1, 0); /* initialization of the HAL object should be called one time only in the project*/
+	LEDS_ARRAY.init(true,1,1);
 	ReactionWheel.init(5000, 1000); /* initialization of the HAL object should be called one time only in the project*/
 	//ReactionWheel.init(10000, 8400); // optional duty cycle
 
